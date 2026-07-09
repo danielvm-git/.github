@@ -1,0 +1,49 @@
+name: CI
+# For Swift Package Manager libs/CLIs (e.g. big-dock-locker, bigpowers-benchmark).
+# For Xcode app targets (e.g. big-clipboard-manager, big-server-monitor, big-stream),
+# swap the build/test step for xcodebuild — see the commented alternative below.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: macos-14
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Swift version
+        run: swift --version
+
+      # --- SPM lib/CLI (default) ---
+      - name: Build
+        run: swift build -v
+
+      - name: Test
+        run: swift test -v --parallel
+
+      # --- Xcode app target (use instead of the two steps above) ---
+      # - name: Build
+      #   run: |
+      #     xcodebuild build \
+      #       -project YourApp.xcodeproj \
+      #       -scheme YourApp \
+      #       -destination 'platform=macOS'
+      # - name: Test
+      #   run: |
+      #     xcodebuild test \
+      #       -project YourApp.xcodeproj \
+      #       -scheme YourApp \
+      #       -destination 'platform=macOS' \
+      #       -resultBundlePath TestResults

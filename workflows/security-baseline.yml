@@ -1,0 +1,25 @@
+name: security-baseline
+# Reusable snippet documenting the 3 defaults missing from 52-83% of the
+# portfolio's workflows today (see docs/reference/audit-history/2026-07-audit.md).
+# Not directly workflow_call-able (permissions/concurrency are workflow-level,
+# not composable) — copy these three blocks into every new workflow instead.
+
+# 1) Top of every workflow file:
+#
+# permissions:
+#   contents: read
+#
+# 2) Top-level, one per workflow (CI: cancel; deploy: queue, don't cancel):
+#
+# concurrency:
+#   group: ci-${{ github.workflow }}-${{ github.ref }}
+#   cancel-in-progress: true   # false for deploy workflows
+#
+# 3) Every job:
+#
+# jobs:
+#   your-job:
+#     timeout-minutes: 15   # 10-15 CI, 20-30 deploy
+
+on:
+  workflow_call: {}

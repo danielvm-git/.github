@@ -1,0 +1,36 @@
+name: CI
+# Based on big-token-saver's ci.yml pattern (matrix OS, shellcheck for any
+# accompanying shell scripts, Swatinem/rust-cache).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      # TODO: pin to full commit SHA (read-only cache action, low priority
+      # but keep consistent with the rest of the portfolio).
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build
+        run: cargo build --release
+
+      - name: Clippy
+        run: cargo clippy -- -D warnings
+
+      - name: Test
+        run: cargo test

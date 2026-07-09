@@ -1,0 +1,95 @@
+name: Deploy Docs Site to GitHub Pages
+# Generalized from bigpowers/.github/workflows/docs-site.yml (Astro Starlight).
+# Use this for Node/Astro-based docs sites. For Python/MkDocs docs sites, use
+# deploy-pages-mkdocs.yml (lifted from grimoire/docs.yaml) instead.
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "website/**"
+      - "README.md"
+      - ".github/workflows/deploy-pages-starlight.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+
+      - name: Build docs site
+        run: |
+          cd website
+          npm ci
+          npm run build
+
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: website/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy_attempt_1.outputs.page_url || steps.deploy_attempt_2.outputs.page_url || steps.deploy_attempt_3.outputs.page_url }}
+    steps:
+      # GitHub Pages deploys are occasionally flaky — bigpowers found 3
+      # attempts with a 45s backoff reliably clears transient failures.
+      - name: Deploy to GitHub Pages (attempt 1)
+        id: deploy_attempt_1
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+
+      - name: Wait before retry
+        if: steps.deploy_attempt_1.outcome == 'failure'
+        run: sleep 45
+
+      - name: Deploy to GitHub Pages (attempt 2)
+        id: deploy_attempt_2
+        if: steps.deploy_attempt_1.outcome == 'failure'
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+
+      - name: Wait before final retry
+        if: steps.deploy_attempt_1.outcome == 'failure' && steps.deploy_attempt_2.outcome == 'failure'
+        run: sleep 45
+
+      - name: Deploy to GitHub Pages (attempt 3)
+        id: deploy_attempt_3
+        if: steps.deploy_attempt_1.outcome == 'failure' && steps.deploy_attempt_2.outcome == 'failure'
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+
+      - name: Verify deployment succeeded
+        run: |
+          if [ "${{ steps.deploy_attempt_1.outcome }}" = "success" ] || \
+             [ "${{ steps.deploy_attempt_2.outcome }}" = "success" ] || \
+             [ "${{ steps.deploy_attempt_3.outcome }}" = "success" ]; then
+            echo "GitHub Pages deployment succeeded"
+          else
+            echo "::error::GitHub Pages deployment failed after 3 attempts"
+            exit 1
+          fi
