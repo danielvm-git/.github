@@ -18,7 +18,8 @@ title: bigbase-deploy contract
 |---|---|
 | `static` | Astro/Vue/plain static builds |
 | `python` | big-bolao |
-| node / go | not yet exercised live — confirm behavior before relying on it |
+| `go` | big-library (MCP server) |
+| `node` | not yet exercised live — confirm behavior before relying on it |
 
 ## Health check contract
 

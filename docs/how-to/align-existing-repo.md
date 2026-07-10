@@ -39,7 +39,10 @@ Use `templates/readmes/` for stack-specific sections. If your stack isn't listed
 
 - [ ] Workflow lives at `.github/workflows/ci.yml` (or `ci-cd.yml` if deploying to BigBase)
 - [ ] Template matches project stack (copy from `workflow-templates/`)
-- [ ] All actions SHA-pinned (not `@v4` or `@master`)
+- [ ] Actions pinned per `docs/explanation/github-actions-best-practices.md` tier:
+  - **Third-party actions with write/secrets access:** pin to full commit SHA
+  - **First-party `actions/*`:** major-version tags acceptable (`@v4`, `@v5`)
+  - **Never `@master` or `@main`** for any action
 - [ ] `permissions: contents: read` at workflow level
 - [ ] `timeout-minutes` set on every job
 - [ ] `concurrency` group set at workflow level
