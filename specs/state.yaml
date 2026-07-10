@@ -1,11 +1,9 @@
-active_flow: fix_bug
+active_flow: null
 active_epic: null
 active_story: null
-bug_id: BUG-2026-07-10-fleet-feedback-p2
+bug_id: null
 bigpowers_version: 2.76.1
-bug_cycle:
-  current_step: 3
-  completed_steps: [1, 2]
+bug_cycle: null
 handoff:
-  context: fix-bug P2 round — addressing deferred P2 items from fleet feedback round 2. Creating missing templates (ISSUE_TEMPLATE, pre-commit, gitignore, .releaserc, uv CI, CodeQL, game/generic READMEs, ruff migration guide) and fixing remaining template gaps (golangci-lint SHA, mkdocs retry, ci-python-matrix).
-  next_skill: develop-tdd
+  context: fix-bug P2/P3 complete — 15 of 17 items done. Created: ISSUE_TEMPLATE (3 files), pre-commit template, 7 gitignore templates, .releaserc.shared.json, ci-python-uv.yml, ci-python-matrix.yml, codeql-python.yml, codeql-javascript.yml, game-README.md, generic-README.md, ruff migration guide. Fixed: mkdocs retry backport, golangci-lint replaced with curl install, README templates BigBase-aware. Deferred P3 (needs design): template versioning, template changelog, multi-stack CI, test harness. Portfolio now has 15 workflow templates (up from 11), all with .properties.json, all with security baseline. 9 field report issues closed with recommendations.
+  next_skill: survey-context

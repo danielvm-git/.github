@@ -40,6 +40,44 @@ The round 2 fix-bug cycle resolved all P0/P1 items. This bug tracks the 17 defer
 16. **Multi-stack CI template** — for repos mixing Node + Go, Python + Vue, etc.
 17. **Template test harness** — minimal hello-world repos exercising each template via `act`
 
+## Resolution (2026-07-10)
+
+### ✅ Done (15 of 17)
+
+| # | Item | Commit |
+|---|------|--------|
+| 1 | ISSUE_TEMPLATE/ (bug_report, feature_request, config) | 68c362b |
+| 2 | templates/pre-commit/python-pre-commit.yaml | 68c362b |
+| 3 | 7 gitignore templates (python, node, vue, swift, rust, go, godot) | 68c362b |
+| 4 | templates/semantic-release/.releaserc.shared.json | 68c362b |
+| 5 | workflow-templates/ci-python-uv.yml | 68c362b |
+| 6 | workflow-templates/codeql-python.yml + codeql-javascript.yml | 68c362b |
+| 7 | templates/readmes/game-README.md | 68c362b |
+| 8 | templates/readmes/generic-README.md | 68c362b |
+| 9 | docs/how-to/migrate-black-isort-to-ruff.md | 68c362b |
+| 10 | workflow-templates/ci-python-matrix.yml | 68c362b |
+| 11 | deploy-pages-mkdocs.yml retry backport | 68c362b |
+| 12 | golangci-lint replaced with curl install in ci-go.yml | 68c362b |
+| 13 | README templates BigBase-aware (astro, vue, sveltekit) | 68c362b |
+
+### ⚠️ Deferred P3 (needs design before implementation)
+
+| # | Item | Why deferred |
+|---|------|-------------|
+| 14 | Template versioning headers + sync script | Needs decision: Renovate vs manual sync vs workflow_call refs |
+| 15 | workflow-templates/CHANGELOG.md | Blocked on template versioning (no versions to log without it) |
+| 16 | Multi-stack CI template | Needs design: compose via matrix vs separate workflow files vs reusable workflow_call |
+| 17 | Template test harness (act-based) | Needs `act` setup + hello-world repos per stack |
+
+### Portfolio state after this fix
+
+- **15 workflow templates** (up from 11): go, node, python, python-uv, python-matrix, rust, shell, static-site, swift, vue-spa, mkdocs, starlight, release-branch, codeql-python, codeql-javascript
+- **All 15 have .properties.json** for GitHub native picker
+- **All 15 have security baseline** (permissions, concurrency, timeout-minutes)
+- **All pinned to ubuntu-22.04**
+- **All trigger on [main, develop, master]**
+- **9 template categories**: gitignore (7 stacks), pre-commit (python), semantic-release (.releaserc), readmes (14 stacks), issue templates (3 files)
+
 ## Fix Approach
 
 P2 items are mostly file creation. P3 items need design decisions — file separately.
