@@ -1,4 +1,5 @@
 name: CI
+# version: 1.0.0 — see workflow-templates/CHANGELOG.md
 # For Swift Package Manager libs/CLIs (e.g. big-dock-locker, bigpowers-benchmark).
 # For Xcode app targets (e.g. big-clipboard-manager, big-server-monitor, big-stream),
 # swap the build/test step for xcodebuild — see the commented alternative below.

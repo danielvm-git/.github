@@ -1,4 +1,5 @@
 name: CI/CD
+# version: 1.0.0 — see workflow-templates/CHANGELOG.md
 # Extracted from 3 near-identical live workflows: big-dock-locker-site,
 # big-olive-books, clean-install-guide. Consolidates them into one template
 # using scoped-token auth (not the email/password pattern some of the

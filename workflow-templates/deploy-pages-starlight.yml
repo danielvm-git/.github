@@ -1,4 +1,5 @@
 name: Deploy Docs Site to GitHub Pages
+# version: 1.0.0 — see workflow-templates/CHANGELOG.md
 # Generalized from bigpowers/.github/workflows/docs-site.yml (Astro Starlight).
 # Use this for Node/Astro-based docs sites. For Python/MkDocs docs sites, use
 # deploy-pages-mkdocs.yml (lifted from grimoire/docs.yaml) instead.
