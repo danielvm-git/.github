@@ -1,0 +1,6 @@
+{
+  "name": "CI (Python — uv)",
+  "description": "Lint, typecheck, and test a Python project using uv (not pip)",
+  "iconName": "python",
+  "categories": ["Continuous integration", "Python"]
+}

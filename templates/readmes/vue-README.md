@@ -197,6 +197,7 @@ pnpm test:coverage # with coverage report
 6. **Lint**: `pnpm lint`
 7. **Test**: `pnpm test`
 8. **Build**: `pnpm build` — outputs to `dist/`
+9. **Deploy**: Push to `main` — CI deploys to BigBase via `ci-vue-spa.yml`
 
 ---
 

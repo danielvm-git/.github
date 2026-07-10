@@ -1,9 +1,11 @@
-active_flow: null
+active_flow: fix_bug
 active_epic: null
 active_story: null
-bug_id: null
+bug_id: BUG-2026-07-10-fleet-feedback-p2
 bigpowers_version: 2.76.1
-bug_cycle: null
+bug_cycle:
+  current_step: 3
+  completed_steps: [1, 2]
 handoff:
-  context: fix-bug round 2 complete — addressed 12 fleet feedback bugs from 9 field reports (issues #1-#9). Fixed: stale contract, .properties.json (11 files), concurrency gaps (ci-python + ci-go), ubuntu-latest pinning (2 deploy templates), branches broadening (all 11 templates), ci-vue-spa.yml action adoption, audit-workflows.sh, pull-brand-tokens.sh, align-existing-repo.md, security-baseline.yml clarification. External: danielvm-git/bigbase#65 (passthrough_paths). Deferred to P2 backlog: template versioning, CodeQL templates, .pre-commit template, ISSUE_TEMPLATE, game README, .releaserc, uv template, gitignore templates, ruff migration guide.
-  next_skill: survey-context
+  context: fix-bug P2 round — addressing deferred P2 items from fleet feedback round 2. Creating missing templates (ISSUE_TEMPLATE, pre-commit, gitignore, .releaserc, uv CI, CodeQL, game/generic READMEs, ruff migration guide) and fixing remaining template gaps (golangci-lint SHA, mkdocs retry, ci-python-matrix).
+  next_skill: develop-tdd

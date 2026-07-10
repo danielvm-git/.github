@@ -71,6 +71,7 @@ Formatting is enforced via Prettier with the `prettier-plugin-svelte` plugin. Ru
 - [TypeScript](https://www.typescriptlang.org) — type-safe code
 - [Vite](https://vitejs.dev) — dev server and bundler
 - [adapter-vercel](https://kit.svelte.dev/docs/adapter-vercel) | [adapter-netlify](https://kit.svelte.dev/docs/adapter-netlify) | [adapter-cloudflare](https://kit.svelte.dev/docs/adapter-cloudflare) — deployment targets
+- **adapter-static** — output to `dist/`, deploy to BigBase via `danielvm-git/.github/actions/bigbase-deploy`
 - [Vitest](https://vitest.dev) — unit and integration tests
 - [ESLint](https://eslint.org) + [Prettier](https://prettier.io) — linting and formatting
 

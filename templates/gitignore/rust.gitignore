@@ -1,0 +1,18 @@
+# Rust
+target/
+debug/
+release/
+
+# Cargo
+.cargo/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# bts / tooling
+.bts.toml
+.envrc

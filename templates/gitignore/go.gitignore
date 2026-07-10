@@ -1,0 +1,19 @@
+# Go
+/bin/
+/pkg/
+/vendor/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Environment
+.env
+.env.local
+
+# bts / tooling
+.bts.toml
+.envrc

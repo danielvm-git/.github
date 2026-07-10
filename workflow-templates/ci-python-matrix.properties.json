@@ -1,0 +1,6 @@
+{
+  "name": "CI (Python — matrix)",
+  "description": "Multi-version Python CI with ruff, mypy, and pytest across 3.10–3.13",
+  "iconName": "python",
+  "categories": ["Continuous integration", "Python"]
+}

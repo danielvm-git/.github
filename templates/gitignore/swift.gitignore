@@ -1,0 +1,16 @@
+# Swift / Xcode
+.build/
+DerivedData/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+Packages/
+*.pm/
+*.xcodeproj/project.xcworkspace/
+
+# macOS
+.DS_Store
+Thumbs.db
+
+# bts / tooling
+.bts.toml
+.envrc

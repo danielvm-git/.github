@@ -1,0 +1,6 @@
+{
+  "name": "CodeQL (JavaScript/TypeScript)",
+  "description": "Weekly static analysis security scanning for JavaScript and TypeScript codebases",
+  "iconName": "shield",
+  "categories": ["Security", "JavaScript", "TypeScript"]
+}

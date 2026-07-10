@@ -61,6 +61,7 @@ jobs:
 - [Adapter: Vercel](https://docs.astro.build/en/guides/deploy/vercel/) — edge / serverless deployment
 - [Adapter: Netlify](https://docs.astro.build/en/guides/deploy/netlify/) — Netlify Functions + SSR
 - [Adapter: Node](https://docs.astro.build/en/guides/deploy/node/) — standalone Node.js server
+- **Adapter: Static** — output to `dist/`, deploy to BigBase via `ci-static-site.yml` (see `danielvm-git/.github/actions/bigbase-deploy`)
 
 ## Features
 
@@ -111,7 +112,9 @@ The `LikeButton` above is a server island — it renders on the server and strea
 ```bash
 npm create astro@latest -- --template minimal
 cd my-project
-npm install @astrojs/mdx @astrojs/vercel
+npm install @astrojs/mdx
+# For Vercel: npm install @astrojs/vercel
+# For BigBase (static): no adapter needed, output: 'static'
 ```
 
 Update `astro.config.mjs` with your chosen adapter:

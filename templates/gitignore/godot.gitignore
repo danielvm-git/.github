@@ -1,0 +1,16 @@
+# Godot
+.godot/
+export/
+*.import
+*.translation
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# bts / tooling
+.bts.toml
+.envrc
