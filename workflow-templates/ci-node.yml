@@ -1,4 +1,5 @@
 name: CI
+# version: 1.0.0 — see workflow-templates/CHANGELOG.md
 
 on:
   push:

@@ -1,0 +1,1 @@
+{"name": "CI (Monorepo)", "description": "Multi-language CI — auto-detects Node, Python, Rust, Go, Shell per subdirectory", "iconName": "package-dependencies", "categories": ["Continuous integration"]}

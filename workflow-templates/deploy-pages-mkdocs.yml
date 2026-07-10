@@ -1,4 +1,5 @@
 name: Deploy Documentation
+# version: 1.0.0 — see workflow-templates/CHANGELOG.md
 # Lifted from grimoire/.github/workflows/docs.yaml (MkDocs). Use this for
 # Python/MkDocs docs sites. For Node/Astro Starlight docs sites, use
 # deploy-pages-starlight.yml (from bigpowers/website) instead.

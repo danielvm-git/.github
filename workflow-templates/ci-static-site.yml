@@ -1,4 +1,5 @@
 name: CI
+# version: 1.0.0 — see workflow-templates/CHANGELOG.md
 # Generic static-site build+test, for Astro sites that aren't yet wired to
 # bigbase-deploy. For sites that also deploy, add the bigbase-deploy action
 # (or ci-vue-spa.yml's deploy block) after the build step.
@@ -11,6 +12,10 @@ on:
 
 permissions:
   contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:

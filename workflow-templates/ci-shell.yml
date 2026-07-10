@@ -1,4 +1,5 @@
 name: CI
+# version: 1.0.0 — see workflow-templates/CHANGELOG.md
 # For shell/CLI-only projects (e.g. dev-checklist). Lifted from the shellcheck
 # step already running inside big-token-saver's ci.yml — extracted here so
 # pure-shell projects don't need a Rust/Node toolchain just to lint.

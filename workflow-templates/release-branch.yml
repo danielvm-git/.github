@@ -1,4 +1,5 @@
 name: Release Branch — Pre-Land Verification
+# version: 1.0.0 — see workflow-templates/CHANGELOG.md
 # Runs preflight (compliance + gates + test + lint) on PR pushes.
 # Drop this alongside the language-specific CI template.
 

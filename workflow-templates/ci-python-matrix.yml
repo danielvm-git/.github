@@ -1,4 +1,5 @@
 name: CI (Python — matrix)
+# version: 1.0.0 — see workflow-templates/CHANGELOG.md
 # Multi-version Python CI. Use this when the project supports multiple Python
 # versions. For single-version projects, use ci-python.yml (simpler, faster).
 
