@@ -26,4 +26,4 @@ title: bigbase-deploy contract
 
 ## Known migration debt
 
-`big-bolao`, `big-library`, `big-olive-books` still authenticate with `BIGBASE_EMAIL`/`BIGBASE_PASSWORD` as of the 2026-07 audit. Migrate to `BIGBASE_DEPLOY_TOKEN` — see `docs/reference/audit-history/2026-07-audit.md` for the full finding.
+`big-library`, `big-olive-books` still authenticate with `BIGBASE_EMAIL`/`BIGBASE_PASSWORD` as of the 2026-07 audit. `big-bolao` migrated to `BIGBASE_DEPLOY_TOKEN` on 2026-07-10. See `docs/reference/audit-history/2026-07-audit.md` for the full audit finding.
