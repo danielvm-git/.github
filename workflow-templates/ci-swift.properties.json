@@ -1,0 +1,6 @@
+{
+  "name": "CI (Swift)",
+  "description": "Build and test a Swift package or Xcode project",
+  "iconName": "swift",
+  "categories": ["Continuous integration", "Swift"]
+}

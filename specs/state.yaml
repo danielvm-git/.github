@@ -5,5 +5,5 @@ bug_id: null
 bigpowers_version: 2.76.1
 bug_cycle: null
 handoff:
-  context: fix-bug complete — closed 16 gaps in .github template repo (land-branch.sh, CONVENTIONS.md, AGENTS.md, preflight, semantic-release config, guard-git docs, branch protection doc, release-branch workflow, scripts/, fix-bug docs, agent-context doc, specs/, dogfood CI, DORA rollup, README preflight, quickstart release-branch).
+  context: fix-bug round 2 complete — addressed 12 fleet feedback bugs from 9 field reports (issues #1-#9). Fixed: stale contract, .properties.json (11 files), concurrency gaps (ci-python + ci-go), ubuntu-latest pinning (2 deploy templates), branches broadening (all 11 templates), ci-vue-spa.yml action adoption, audit-workflows.sh, pull-brand-tokens.sh, align-existing-repo.md, security-baseline.yml clarification. External: danielvm-git/bigbase#65 (passthrough_paths). Deferred to P2 backlog: template versioning, CodeQL templates, .pre-commit template, ISSUE_TEMPLATE, game README, .releaserc, uv template, gitignore templates, ruff migration guide.
   next_skill: survey-context

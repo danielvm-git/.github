@@ -1,0 +1,6 @@
+{
+  "name": "CI/CD (Vue SPA)",
+  "description": "Lint, typecheck, test, build, and deploy a Vue SPA to BigBase",
+  "iconName": "vue",
+  "categories": ["Continuous integration", "Deployment", "Vue"]
+}

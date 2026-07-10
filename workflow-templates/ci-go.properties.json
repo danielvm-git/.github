@@ -1,0 +1,6 @@
+{
+  "name": "CI (Go)",
+  "description": "Lint, test, and build a Go project with golangci-lint and race detection",
+  "iconName": "go",
+  "categories": ["Continuous integration", "Go"]
+}

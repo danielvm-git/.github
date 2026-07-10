@@ -6,7 +6,7 @@ name: CI/CD
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop, master]
   workflow_dispatch:
 
 permissions:
@@ -55,32 +55,11 @@ jobs:
           path: dist/
           retention-days: 3
 
-      # Replace with: uses: danielvm-git/.github/actions/bigbase-deploy@<sha>
+      # Deploy via shared bigbase-deploy action (scoped token, masked, retry-based health check)
       - name: Deploy to BigBase
-        env:
-          BIGBASE_SERVER: "https://bigbase.click"
-          BIGBASE_DEPLOY_TOKEN: ${{ secrets.BIGBASE_DEPLOY_TOKEN }}
-          BIGBASE_SITE_ID: ${{ secrets.BIGBASE_SITE_ID }}
-        run: |
-          if [ -z "$BIGBASE_DEPLOY_TOKEN" ]; then
-            echo "::error::BIGBASE_DEPLOY_TOKEN not set — provision via bigbase_provision_ci_credentials"
-            exit 1
-          fi
-          curl -sfX POST "$BIGBASE_SERVER/api/sites/$BIGBASE_SITE_ID/deploy" \
-            -H "Authorization: Bearer $BIGBASE_DEPLOY_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d '{"branch":"main","app_type":"static"}'
-
-      - name: Health check
-        run: |
-          for i in $(seq 1 8); do
-            STATUS=$(curl -s -o /dev/null -w '%{http_code}' "${{ env.SITE_URL }}")
-            if [ "$STATUS" = "200" ] || [ "$STATUS" = "301" ] || [ "$STATUS" = "302" ]; then
-              echo "✅ Site LIVE (HTTP $STATUS)"
-              exit 0
-            fi
-            echo "Attempt $i: HTTP $STATUS, waiting 10s..."
-            sleep 10
-          done
-          echo "::error::Health check failed after 8 attempts"
-          exit 1
+        uses: danielvm-git/.github/actions/bigbase-deploy@main
+        with:
+          site_id: ${{ secrets.BIGBASE_SITE_ID }}
+          app_type: static
+          site_url: ${{ env.SITE_URL }}
+          deploy_token: ${{ secrets.BIGBASE_DEPLOY_TOKEN }}

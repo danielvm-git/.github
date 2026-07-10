@@ -1,0 +1,6 @@
+{
+  "name": "CI (Static Site)",
+  "description": "Build and test a static site (Astro, plain HTML, etc.)",
+  "iconName": "globe",
+  "categories": ["Continuous integration", "Pages"]
+}

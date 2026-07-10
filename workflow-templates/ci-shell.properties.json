@@ -1,0 +1,6 @@
+{
+  "name": "CI (Shell)",
+  "description": "Lint shell scripts with shellcheck and run bats tests",
+  "iconName": "shell",
+  "categories": ["Continuous integration", "Shell"]
+}

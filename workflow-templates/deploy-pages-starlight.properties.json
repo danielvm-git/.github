@@ -1,0 +1,6 @@
+{
+  "name": "Deploy Docs (Starlight)",
+  "description": "Build and deploy Astro Starlight documentation to GitHub Pages",
+  "iconName": "book",
+  "categories": ["Pages", "Documentation", "Astro"]
+}

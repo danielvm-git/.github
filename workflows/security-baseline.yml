@@ -1,9 +1,14 @@
 name: security-baseline
-# Reusable snippet documenting the 3 defaults missing from 52-83% of the
-# portfolio's workflows today (see docs/reference/audit-history/2026-07-audit.md).
-# Not directly workflow_call-able (permissions/concurrency are workflow-level,
-# not composable) — copy these three blocks into every new workflow instead.
-
+# Documents the 3 security defaults missing from 52-83% of the portfolio's
+# workflows (see docs/reference/audit-history/2026-07-audit.md).
+#
+# NOT a reusable workflow — permissions/concurrency are workflow-level,
+# not composable via workflow_call. Copy these three blocks into every
+# new workflow instead. For enforcement across the portfolio, run:
+#   ./scripts/audit-workflows.sh
+#
+# The 3 blocks to copy:
+#
 # 1) Top of every workflow file:
 #
 # permissions:

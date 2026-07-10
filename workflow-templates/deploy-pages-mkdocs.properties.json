@@ -1,0 +1,6 @@
+{
+  "name": "Deploy Docs (MkDocs)",
+  "description": "Build and deploy Python/MkDocs documentation to GitHub Pages",
+  "iconName": "book",
+  "categories": ["Pages", "Documentation", "Python"]
+}

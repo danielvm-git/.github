@@ -4,7 +4,7 @@ name: Release Branch — Pre-Land Verification
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, develop, master]
     types: [opened, synchronize, reopened]
 
 permissions:

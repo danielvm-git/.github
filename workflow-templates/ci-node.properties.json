@@ -1,0 +1,6 @@
+{
+  "name": "CI (Node.js)",
+  "description": "Lint, typecheck, test, and build a Node.js project",
+  "iconName": "node",
+  "categories": ["Continuous integration", "JavaScript", "TypeScript"]
+}

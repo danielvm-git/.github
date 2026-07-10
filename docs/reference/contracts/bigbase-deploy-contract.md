@@ -24,6 +24,11 @@ title: bigbase-deploy contract
 
 8 attempts, 10s interval, accepts HTTP 200/301/302 as healthy. Failing after 8 attempts fails the job — no silent partial-deploy state.
 
-## Known migration debt
+## Migration status
 
-`big-library`, `big-olive-books` still authenticate with `BIGBASE_EMAIL`/`BIGBASE_PASSWORD` as of the 2026-07 audit. `big-bolao` migrated to `BIGBASE_DEPLOY_TOKEN` on 2026-07-10. See `docs/reference/audit-history/2026-07-audit.md` for the full audit finding.
+All known repos migrated to scoped `BIGBASE_DEPLOY_TOKEN` as of 2026-07-10:
+- `big-bolao` — migrated (commit b63fa5b)
+- `big-library` — migrated (commit 0a43f24)
+- `big-olive-books` — migrated (eslint.config.js + ci-cd.yml token auth)
+
+No repos remain on `BIGBASE_EMAIL`/`BIGBASE_PASSWORD` auth. See `docs/reference/audit-history/2026-07-audit.md` for the original audit finding.
