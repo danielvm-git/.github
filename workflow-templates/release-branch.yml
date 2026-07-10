@@ -1,0 +1,52 @@
+name: Release Branch — Pre-Land Verification
+# Runs preflight (compliance + gates + test + lint) on PR pushes.
+# Drop this alongside the language-specific CI template.
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  preflight:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preflight
+        run: |
+          if [ -f scripts/preflight.sh ]; then
+            bash scripts/preflight.sh
+          elif [ -f Makefile ] && grep -q '^preflight:' Makefile; then
+            make preflight
+          elif command -v npm >/dev/null 2>&1 && grep -q '"preflight"' package.json 2>/dev/null; then
+            npm run preflight
+          else
+            echo "WARN: No preflight script found — add scripts/preflight.sh"
+          fi
+
+  conventional-commits:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check commits follow Conventional Commits
+        run: |
+          git log origin/main..HEAD --oneline | while read -r line; do
+            if ! echo "$line" | grep -qE "^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: "; then
+              echo "FAIL: Non-conventional commit: $line"
+              exit 1
+            fi
+          done
+          echo "PASS: All commits follow Conventional Commits"

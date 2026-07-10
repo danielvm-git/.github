@@ -67,5 +67,6 @@ Registre cada decisão em `docs/explanation/repo-disposition-log.md` com data �
 
 1. Commit inicial com a estrutura completa.
 2. Rode `scripts/audit-workflows.sh` uma vez contra os 28 repos reais — esse é o primeiro `audit-history/` de verdade, não mais um export de conversa.
-3. **Teste com 1 repo piloto**: escolha um projeto pequeno e sem CI hoje (ex.: `big-server-monitor`), aplique o template certo, o `bigbase-deploy`, confirme `AGENTS.md` único, puxe os tokens de marca. Se esse ciclo completo funcionar de ponta a ponta num repo real, o padrão está pronto pra virar prática padrão nos outros 27.
-4. Só depois disso, torne o repo público (se for o objetivo) e comece a migrar os demais repos, um de cada vez, não em massa.
+3. **Teste com 1 repo piloto**: escolha um projeto pequeno e sem CI hoje (ex.: `big-server-monitor`), aplique o template certo, o `bigbase-deploy`, confirme `AGENTS.md` único, puxe os tokens de marca.
+4. **Lande sua primeira feature**: siga o fluxo bigpowers completo — `kickoff-branch` → `develop-tdd` → `verify-work` → `audit-code` → `release-branch`. O `release-branch` roda `scripts/land-branch.sh` (squash-merge local) ou `gh pr create` (team mode) e dispara semantic-release. O workflow `release-branch.yml` roda preflight em CI antes do merge. O `guard-git` bloqueia push direto no `main`.
+5. Só depois desse ciclo completo funcionar de ponta a ponta num repo real, torne o repo público (se for o objetivo) e comece a migrar os demais repos, um de cada vez, não em massa.

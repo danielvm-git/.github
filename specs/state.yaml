@@ -1,0 +1,9 @@
+active_flow: null
+active_epic: null
+active_story: null
+bug_id: null
+bigpowers_version: 2.76.1
+bug_cycle: null
+handoff:
+  context: fix-bug complete — closed 16 gaps in .github template repo (land-branch.sh, CONVENTIONS.md, AGENTS.md, preflight, semantic-release config, guard-git docs, branch protection doc, release-branch workflow, scripts/, fix-bug docs, agent-context doc, specs/, dogfood CI, DORA rollup, README preflight, quickstart release-branch).
+  next_skill: survey-context

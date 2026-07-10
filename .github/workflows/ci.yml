@@ -1,0 +1,43 @@
+name: CI
+# Dogfood — runs the ci-shell.yml pattern on this repo.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ShellCheck
+        run: |
+          if ls scripts/*.sh >/dev/null 2>&1; then
+            shellcheck scripts/*.sh
+          else
+            echo "No shell scripts to lint"
+          fi
+
+      - name: YAML Lint
+        run: |
+          pip install yamllint
+          yamllint workflow-templates/ workflows/ actions/
+
+      - name: Check AGENTS.md has no placeholders
+        run: |
+          if grep -q '\[One sentence' AGENTS.md; then
+            echo "FAIL: AGENTS.md still has placeholder text"
+            exit 1
+          fi
+          echo "PASS: AGENTS.md is filled in"
