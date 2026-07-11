@@ -51,3 +51,11 @@ jobs:
             fi
           done
           echo "PASS: All commits follow Conventional Commits"
+
+      - name: Check no AI agent attribution
+        run: |
+          if git log origin/main..HEAD --format="%B" | grep -qiE '^co[- ]authored[- ]by:'; then
+            echo "FAIL: Co-authored-by: footer found — blocked by CONVENTIONS.md § Git Attribution"
+            exit 1
+          fi
+          echo "PASS: No AI agent attribution"

@@ -16,8 +16,14 @@ while IFS= read -r line; do
   fi
 done < <(git log "$BASE..HEAD" --oneline)
 
+# Check for prohibited Co-authored-by: footers in full commit bodies
+if git log "$BASE..HEAD" --format="%B" | grep -qiE '^co[- ]authored[- ]by:'; then
+  echo "FAIL: Co-authored-by: footer found — blocked by CONVENTIONS.md § Git Attribution"
+  ((FAILS++))
+fi
+
 if [ "$FAILS" -gt 0 ]; then
-  echo "$FAILS non-conventional commit(s) found"
+  echo "$FAILS violation(s) found"
   exit 1
 fi
 
