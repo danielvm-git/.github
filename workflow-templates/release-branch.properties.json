@@ -1,6 +1,0 @@
-{
-  "name": "Release Branch — Pre-Land Verification",
-  "description": "Run preflight checks (lint, test, typecheck) on PR pushes before landing",
-  "iconName": "git-pull-request",
-  "categories": ["Continuous integration", "Utilities"]
-}

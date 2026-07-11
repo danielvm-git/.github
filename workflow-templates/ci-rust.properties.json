@@ -1,6 +1,0 @@
-{
-  "name": "CI (Rust)",
-  "description": "Build, test, lint, and check formatting for a Rust project with clippy and rustfmt",
-  "iconName": "rust",
-  "categories": ["Continuous integration", "Rust"]
-}

@@ -61,7 +61,7 @@ jobs:
 - [Adapter: Vercel](https://docs.astro.build/en/guides/deploy/vercel/) — edge / serverless deployment
 - [Adapter: Netlify](https://docs.astro.build/en/guides/deploy/netlify/) — Netlify Functions + SSR
 - [Adapter: Node](https://docs.astro.build/en/guides/deploy/node/) — standalone Node.js server
-- **Adapter: Static** — output to `dist/`, deploy to BigBase via `ci-static-site.yml` (see `danielvm-git/.github/actions/bigbase-deploy`)
+- **Adapter: Static** — output to `dist/`, deploy to BigBase via `ci-cd-static.yml` (see `danielvm-git/.github/actions/bigbase-deploy`)
 
 ## Features
 

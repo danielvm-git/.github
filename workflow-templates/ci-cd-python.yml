@@ -1,0 +1,111 @@
+name: CI/CD
+# version: 2.0.0 — see workflow-templates/CHANGELOG.md
+# Consolidates ci-python.yml, ci-python-uv.yml, and ci-python-matrix.yml.
+# Default: uv (modern toolchain). For pip, replace uv steps with pip equivalents.
+# For matrix testing, uncomment the strategy block below.
+
+on:
+  push:
+    branches: [main, develop, master]
+  pull_request:
+    branches: [main, develop, master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pipeline-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  APP_TYPE: python
+  SITE_URL: "https://CHANGE-ME.bigbase.click"
+
+jobs:
+  ci:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    # --- Uncomment for multi-version matrix testing ---
+    # strategy:
+    #   matrix:
+    #     python-version: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+      # --- For pip instead of uv, replace the two lines above with: ---
+      # - uses: actions/setup-python@v5
+      #   with:
+      #     python-version: '3.12'
+      #     cache: pip
+
+      - name: Install dependencies
+        run: uv sync --group dev
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Type check
+        run: uv run mypy src/
+
+      - name: Test
+        run: uv run pytest -q
+
+      - name: Build
+        run: uv build || echo "No build step defined"
+
+      - name: Export deploy token
+        run: echo "DEPLOY_TOKEN=${{ secrets.BIGBASE_DEPLOY_TOKEN }}" >> "$GITHUB_ENV"
+
+  verify:
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Preflight
+        run: |
+          if [ -f scripts/preflight.sh ]; then
+            bash scripts/preflight.sh
+          elif [ -f Makefile ] && grep -q '^preflight:' Makefile; then
+            make preflight
+          else
+            echo "WARN: No preflight script found"
+          fi
+
+      - name: Check Conventional Commits
+        run: |
+          git log origin/main..HEAD --oneline | while read -r line; do
+            if ! echo "$line" | grep -qE "^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: "; then
+              echo "FAIL: Non-conventional commit: $line"
+              exit 1
+            fi
+          done
+          echo "PASS: All commits follow Conventional Commits"
+
+      - name: Check no AI agent attribution
+        run: |
+          if git log origin/main..HEAD --format="%B" | grep -qiE '^co[- ]authored[- ]by:'; then
+            echo "FAIL: Co-authored-by: footer found"
+            exit 1
+          fi
+          echo "PASS: No AI agent attribution"
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && env.DEPLOY_TOKEN != ''
+    needs: [ci, verify]
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to BigBase
+        uses: danielvm-git/.github/actions/bigbase-deploy@main
+        with:
+          site_id: ${{ secrets.BIGBASE_SITE_ID }}
+          app_type: ${{ env.APP_TYPE }}
+          site_url: ${{ env.SITE_URL }}
+          deploy_token: ${{ secrets.BIGBASE_DEPLOY_TOKEN }}

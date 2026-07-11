@@ -1,6 +1,0 @@
-{
-  "name": "CodeQL (Python)",
-  "description": "Weekly static analysis security scanning for Python codebases",
-  "iconName": "shield",
-  "categories": ["Security", "Python"]
-}

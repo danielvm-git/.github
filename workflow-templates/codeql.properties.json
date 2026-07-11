@@ -1,0 +1,6 @@
+{
+  "name": "CodeQL (Security Scanning)",
+  "description": "Weekly + PR static analysis security scanning. Set language via env var (javascript, python).",
+  "iconName": "shield",
+  "categories": ["Security"]
+}

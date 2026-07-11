@@ -1,0 +1,6 @@
+{
+  "name": "CI/CD (Python)",
+  "description": "Full pipeline: lint, typecheck, test, build, verify, and deploy a Python project to BigBase. Supports uv (default), pip, and multi-version matrix.",
+  "iconName": "python",
+  "categories": ["Continuous integration", "Deployment", "Python"]
+}

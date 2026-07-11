@@ -1,0 +1,6 @@
+{
+  "name": "CI/CD (Go)",
+  "description": "Full pipeline: build, vet, test, lint, verify, and deploy a Go project to BigBase",
+  "iconName": "go",
+  "categories": ["Continuous integration", "Deployment", "Go"]
+}
