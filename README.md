@@ -12,6 +12,7 @@ If you're starting a new project: run `bigpowers setup` first (methodology, spec
 | Deploy to bigbase.click | `actions/bigbase-deploy/` + `docs/reference/contracts/bigbase-deploy-contract.md` |
 | Write a README | `templates/readmes/<stack>-README.md` |
 | Understand a past decision | `docs/explanation/` |
+| Wire MCP servers into any tool | `docs/reference/mcp-config-matrix.md` |
 | Look something up | `docs/reference/` |
 | See portfolio health over time | `docs/reference/audit-history/` |
 
