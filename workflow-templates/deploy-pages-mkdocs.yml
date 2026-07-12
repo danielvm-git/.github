@@ -26,9 +26,9 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
 
@@ -38,7 +38,7 @@ jobs:
       - name: Build docs
         run: mkdocs build --config-file docs/mkdocs.yml
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: site
 
@@ -51,7 +51,7 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages (attempt 1)
         id: deploy_attempt_1
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
         continue-on-error: true
 
       - name: Wait before retry
@@ -61,7 +61,7 @@ jobs:
       - name: Deploy to GitHub Pages (attempt 2)
         id: deploy_attempt_2
         if: steps.deploy_attempt_1.outcome == 'failure'
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
         continue-on-error: true
 
       - name: Wait before final retry
@@ -71,7 +71,7 @@ jobs:
       - name: Deploy to GitHub Pages (attempt 3)
         id: deploy_attempt_3
         if: steps.deploy_attempt_1.outcome == 'failure' && steps.deploy_attempt_2.outcome == 'failure'
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
         continue-on-error: true
 
       - name: Verify deployment succeeded

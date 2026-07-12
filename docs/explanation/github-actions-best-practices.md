@@ -19,7 +19,7 @@ Not all actions carry equal risk — pin in this order of priority:
 
 - **Always pin to full commit SHA:** any action with write access to secrets, SSH keys, or deploy targets (e.g. `appleboy/ssh-action`, `appleboy/scp-action`, `peaceiris/actions-gh-pages`, anything touching `gh-pages` or a VPS).
 - **Always pin:** third-party Docker-based actions — use the image digest (`@sha256:...`), not a version tag, if the action has write permissions or an API key.
-- **Acceptable to leave on major-version tags:** first-party `actions/*` (checkout, setup-node, setup-go, upload-artifact, etc.) — GitHub-owned, lower risk, and the version comment convention (`@v4 # v4.3.1`) is fine if your org accepts that tradeoff for readability.
+- **Acceptable to leave on major-version tags:** first-party `actions/*` (checkout, setup-node, setup-go, upload-artifact, etc.) — GitHub-owned, lower risk, and the version comment convention (`@v4 # v4.3.1`) is fine if your org accepts that tradeoff for readability. See `docs/reference/github-actions-versions.md` for current version matrix.
 
 ## Structural patterns worth reusing (already proven in bigbase)
 
@@ -40,6 +40,25 @@ Not all actions carry equal risk — pin in this order of priority:
 - `bigbase/release-deploy.yml`: SHA-pin `appleboy/scp-action` and `appleboy/ssh-action` — they hold SSH deploy credentials, currently on version tags.
 - `sqz`: `dtolnay/rust-toolchain@master` / `@stable` — pinned to a moving branch/alias, the weakest pinning found anywhere in the portfolio. Pin to a version at minimum, SHA ideally.
 - Mechanical/scriptable fix: add `permissions: contents: read` to the 28 workflow files across the portfolio that currently omit it entirely.
+
+## Version maintenance
+
+Our workflow templates are significantly behind on first-party action versions (verified 2026-07-12):
+
+| Action | Current | Latest | Gap |
+|--------|---------|--------|-----|
+| `actions/checkout` | `v4` | `v7.0.0` | 3 major |
+| `actions/setup-node` | `v4` | `v6.4.0` | 2 major |
+| `actions/upload-artifact` | `v4` | `v7.0.1` | 3 major |
+| `actions/download-artifact` | `v4` | `v8.0.1` | 4 major |
+
+**Recommended update strategy:**
+1. Update `workflow-templates/*.yml` first (all templates together)
+2. Test with a single repo before rolling out to portfolio
+3. Check changelogs for breaking changes (especially v4→v7 for checkout)
+4. Use version tags for first-party actions, SHAs for third-party
+
+See `docs/reference/github-actions-versions.md` for full version matrix with SHAs.
 
 ## Reference
 
