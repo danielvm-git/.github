@@ -87,9 +87,36 @@ jobs:
           fi
           echo "PASS: No AI agent attribution"
 
-  deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && env.DEPLOY_TOKEN != ''
+  semantic-release:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     needs: [ci, verify]
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install semantic-release
+        run: npm install --no-save semantic-release @semantic-release/changelog @semantic-release/git
+
+      - name: Run semantic-release
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [ci, verify, semantic-release]
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     steps:

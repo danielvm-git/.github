@@ -29,10 +29,11 @@ Based on lean/CI/CD principles from the Toyota Way, Continuous Integration (Duva
 ### Pipeline pattern
 Each `ci-cd-*.yml` template follows:
 ```
-ci → verify → deploy
+ci → verify → semantic-release → deploy
 ```
 - **ci**: Language-specific lint, typecheck, test, build + artifact upload
 - **verify**: Preflight + conventional commits + no AI attribution (from release-branch.yml)
+- **semantic-release**: Version bump, changelog, GitHub release (main branch only)
 - **deploy**: Conditional BigBase deploy (skips if no secrets configured)
 
 ### Naming convention
