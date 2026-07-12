@@ -23,6 +23,7 @@ Not all actions carry equal risk — pin in this order of priority:
 
 ## Structural patterns worth reusing (already proven in bigbase)
 
+- **Single pipeline per repo (ci → verify → semantic-release → deploy):** Every `ci-cd-*.yml` template follows a 4-job pipeline. The `ci` job runs lint/test/build, `verify` runs preflight + conventional commits, `semantic-release` handles versioning, and `deploy` conditionally calls `bigbase-deploy`. This is one-piece flow — no handoffs between separate workflow files. See any `ci-cd-*.yml` template in `workflow-templates/`.
 - **Fast/slow split via `workflow_dispatch` input:** run cheap checks (lint, unit tests) on every push/PR; gate expensive checks (full installer verification, integration suites) behind a manual `workflow_dispatch` boolean input. See `big-token-saver/ci.yml`.
 - **Backup → deploy → health-check → auto-rollback:** for any deploy workflow touching a live server, snapshot the current binary/DB before deploying, poll a health endpoint with retries after deploy, and automatically restore the snapshot on failure. See `bigbase/release-deploy.yml`.
 - **Least-privilege permissions per job, not per workflow:** a PR-review bot job needs `issues: write, pull-requests: write` but not `contents: write`; a docs-deploy job needs `pages: write, id-token: write` but not `issues`. Scope at the job level when jobs in the same workflow have different needs.

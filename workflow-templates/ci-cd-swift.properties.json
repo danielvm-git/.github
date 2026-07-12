@@ -1,0 +1,6 @@
+{
+  "name": "CI/CD (Swift)",
+  "description": "Build, test, and verify a Swift project on macOS. Deploy step available when BigBase supports Swift.",
+  "iconName": "swift",
+  "categories": ["Continuous integration", "Swift"]
+}

@@ -1,5 +1,6 @@
-name: CodeQL (Python)
-# version: 1.0.0 — see workflow-templates/CHANGELOG.md
+name: CodeQL
+# version: 2.0.0 — see workflow-templates/CHANGELOG.md
+# Unified CodeQL — set the language via the LANGUAGES env var below.
 
 on:
   push:
@@ -7,14 +8,17 @@ on:
   pull_request:
     branches: [main, develop, master]
   schedule:
-    - cron: "0 6 * * 1" # Weekly on Monday at 06:00 UTC
+    - cron: "0 6 * * 1"
 
 permissions:
   contents: read
 
 concurrency:
-  group: codeql-python-${{ github.workflow }}-${{ github.ref }}
+  group: codeql-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+env:
+  LANGUAGES: javascript
 
 jobs:
   analyze:
@@ -24,7 +28,9 @@ jobs:
       security-events: write
     steps:
       - uses: actions/checkout@v4
+
       - uses: github/codeql-action/init@v3
         with:
-          languages: python
+          languages: ${{ env.LANGUAGES }}
+
       - uses: github/codeql-action/analyze@v3

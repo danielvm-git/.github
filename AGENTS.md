@@ -67,10 +67,12 @@ Three layers: **templates** (workflow-templates/, templates/readmes/) consumed b
 - Never proceed on red Preflight or red CI — invoke quick-fix or fix-bug first
 - Never edit another repo's files from this repo
 - Never duplicate bigpowers methodology — this repo extends, not replaces
+- **Never emit `Co-authored-by:` footers** in any commit (`git commit -m`). All commits must appear as if authored solely by the human user. Enforced by pre-tool-use hook, `land-branch.sh`, and CI. No exceptions.
 
 ## Agent Rules
 
 - **Workflow Mandate:** Use bigpowers skills (e.g. `plan-work`, `develop-tdd`) for structured work.
+- **P1 Git Attribution Rule:** Never include `Co-authored-by:` / `Co-Authored-By:` in any commit. See CONVENTIONS.md § Git Attribution. The hook blocks them at `git commit`; CI blocks them at PR. You will be blocked.
 - **Always Green:** Preflight and CI must be green before forward work.
 - Read specs/ and CONVENTIONS.md before writing code.
 - Write the minimum code that solves the stated problem.

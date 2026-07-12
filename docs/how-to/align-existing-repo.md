@@ -35,10 +35,11 @@ See `docs/reference/agent-context-files.md` for the canonical setup.
 
 Use `templates/readmes/` for stack-specific sections. If your stack isn't listed, use `templates/readmes/template-README.md` as a skeleton and fill in repo-specific content.
 
-### 3. CI workflow **(P0)**
+### 3. CI/CD workflow **(P0)**
 
-- [ ] Workflow lives at `.github/workflows/ci.yml` (or `ci-cd.yml` if deploying to BigBase)
-- [ ] Template matches project stack (copy from `workflow-templates/`)
+- [ ] Workflow lives at `.github/workflows/ci-cd-<language>.yml` (copy from `workflow-templates/`)
+- [ ] Template matches project stack: `ci-cd-node.yml`, `ci-cd-python.yml`, `ci-cd-go.yml`, `ci-cd-static.yml`, `ci-cd-swift.yml`, `ci-cd-monorepo.yml`
+- [ ] For docs sites: `ci-cd-pages-mkdocs.yml` or `ci-cd-pages-starlight.yml`
 - [ ] Actions pinned per `docs/explanation/github-actions-best-practices.md` tier:
   - **Third-party actions with write/secrets access:** pin to full commit SHA
   - **First-party `actions/*`:** major-version tags acceptable (`@v4`, `@v5`)

@@ -5,13 +5,15 @@ title: Install git safety hooks per repo
 
 # Git safety hooks (`guard-git`)
 
-bigpowers ships `guard-git` hooks that block dangerous git operations in AI agent sessions:
+bigpowers ships `guard-git` hooks that block dangerous git operations in AI agent sessions and enforce commit discipline:
 - `git push` (to main/master)
 - `git push --force`
 - `git reset --hard`
 - `git clean -fd`
 - `git branch -D`
 - `git checkout .` / `git restore .`
+- Non-Conventional Commits messages
+- **`Co-authored-by:` footers** (P1 — CONVENTIONS.md § Git Attribution)
 
 ## Installation
 
@@ -49,6 +51,9 @@ ls .claude/hooks/pre-tool-use.sh 2>/dev/null && echo "Claude Code: HOOKED" || ec
 | `git branch -D main` | 🔴 Blocked |
 | `git branch -d feat/done` | 🟢 Allowed |
 | `git checkout .` | 🔴 Blocked |
+| Non-Conventional Commit message | 🔴 Blocked |
+| `Co-authored-by:` in commit | 🔴 Blocked (P1) |
+| `git commit -F file` with attribution | 🔴 Blocked (file content scanned) |
 
 ## Disabling (emergency only)
 

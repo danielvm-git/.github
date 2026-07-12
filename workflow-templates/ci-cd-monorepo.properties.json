@@ -1,0 +1,6 @@
+{
+  "name": "CI/CD (Monorepo)",
+  "description": "Multi-language pipeline: auto-detects Node, Python, Rust, Go, Shell per subdirectory. Includes verify and optional BigBase deploy.",
+  "iconName": "package-dependencies",
+  "categories": ["Continuous integration", "Deployment"]
+}

@@ -1,0 +1,6 @@
+{
+  "name": "CI/CD (Static Site)",
+  "description": "Full pipeline: lint, typecheck, test, build, verify, and deploy a static site (Astro, Vue SPA, React, plain HTML) to BigBase",
+  "iconName": "globe",
+  "categories": ["Continuous integration", "Deployment", "Pages"]
+}

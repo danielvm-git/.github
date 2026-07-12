@@ -1,0 +1,6 @@
+{
+  "name": "CI/CD (Docs — MkDocs)",
+  "description": "Full pipeline: build, verify, and deploy Python/MkDocs documentation to GitHub Pages",
+  "iconName": "book",
+  "categories": ["Continuous integration", "Pages", "Documentation", "Python"]
+}
