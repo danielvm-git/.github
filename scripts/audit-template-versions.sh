@@ -7,6 +7,7 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TEMPLATES_DIR="$REPO_ROOT/workflow-templates"
+# shellcheck disable=SC2034
 PATTERN="${1:-}"
 
 echo "==> Template Version Audit"
@@ -29,6 +30,7 @@ done
 
 TOTAL=0
 MISMATCH=0
+# shellcheck disable=SC2034
 MISSING_TEMPLATES=0
 
 for repo in $REPOS; do

@@ -12,7 +12,11 @@ echo "==> Preflight: .github template repo"
 # YAML lint
 if command -v yamllint &>/dev/null; then
   echo "--- yamllint ---"
-  yamllint "$REPO_ROOT/workflow-templates/" "$REPO_ROOT/workflows/" "$REPO_ROOT/actions/" 2>&1 && ((PASS++)) || ((FAIL++))
+  if yamllint "$REPO_ROOT/workflow-templates/" "$REPO_ROOT/workflows/" "$REPO_ROOT/actions/" 2>&1; then
+    ((PASS++))
+  else
+    ((FAIL++))
+  fi
 else
   echo "[SKIP] yamllint not installed (pip install yamllint)"
 fi
@@ -20,7 +24,11 @@ fi
 # ShellCheck
 if command -v shellcheck &>/dev/null && ls "$REPO_ROOT/scripts/"*.sh &>/dev/null 2>&1; then
   echo "--- shellcheck ---"
-  shellcheck "$REPO_ROOT/scripts/"*.sh 2>&1 && ((PASS++)) || ((FAIL++))
+  if shellcheck "$REPO_ROOT/scripts/"*.sh 2>&1; then
+    ((PASS++))
+  else
+    ((FAIL++))
+  fi
 else
   echo "[SKIP] No shell scripts to lint or shellcheck not installed"
 fi

@@ -31,7 +31,9 @@ done
 FEATURE_BRANCH="${ARGS[0]:-}"
 COMMIT_MSG="${ARGS[1]:-}"
 
-[ -n "$FEATURE_BRANCH" ] && [ -n "$COMMIT_MSG" ] || usage_land
+if [ -z "$FEATURE_BRANCH" ] || [ -z "$COMMIT_MSG" ]; then
+  usage_land
+fi
 
 if [[ ! "$COMMIT_MSG" =~ $CONVENTIONAL_REGEX ]]; then
   land_branch_deny "Commit message must follow Conventional Commits: <type>(<scope>): <subject>"

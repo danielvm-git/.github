@@ -5,7 +5,9 @@
 # Usage: bash scripts/rollup-dora.sh [--json] [--repo-pattern "big-*"]
 set -euo pipefail
 
+# shellcheck disable=SC2034
 FORMAT="${1:-table}"
+# shellcheck disable=SC2034
 PATTERN="${2:-}"
 
 echo "==> DORA Portfolio Rollup"
