@@ -9,7 +9,7 @@
 The `.github` template repo has been redesigned from 16 separate workflow templates to 9 unified CI/CD pipelines. Every `ci-cd-*.yml` template now follows a 3-stage pipeline pattern:
 
 ```
-ci → verify → deploy
+ci → verify → semantic-release → deploy
 ```
 
 - **ci**: Language-specific lint, typecheck, test, build + artifact upload
