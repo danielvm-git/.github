@@ -6,7 +6,7 @@
 
 ## Background
 
-The `.github` template repo has been redesigned from 16 separate workflow templates to 9 unified CI/CD pipelines. Every `ci-cd-*.yml` template now follows a 3-stage pipeline pattern:
+The `.github` template repo has been redesigned from 16 separate workflow templates to 9 unified CI/CD pipelines. Every `ci-cd-*.yml` template now follows a 4-stage pipeline pattern:
 
 ```
 ci → verify → semantic-release → deploy
@@ -14,6 +14,7 @@ ci → verify → semantic-release → deploy
 
 - **ci**: Language-specific lint, typecheck, test, build + artifact upload
 - **verify**: Preflight + conventional commits + no AI attribution (absorbed from `release-branch.yml`)
+- **semantic-release**: Version bump, changelog, GitHub release (main branch only)
 - **deploy**: Conditional BigBase deploy via `bigbase-deploy` action
 
 ## Migration Scope

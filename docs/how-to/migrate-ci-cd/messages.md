@@ -10,7 +10,7 @@
 **Current:** ci.yml, codeql.yml, pr-review.yaml, release-deploy.yml
 **Target:** `ci-cd-go.yml`
 
-Hey! The `.github` template repo just got a major redesign — 16 separate workflow templates consolidated into 9 unified pipelines. Every template now follows a 3-stage pattern: `ci → verify → semantic-release → deploy`.
+Hey! The `.github` template repo just got a major redesign — 16 separate workflow templates consolidated into 9 unified pipelines. Every template now follows a 4-stage pattern: `ci → verify → semantic-release → deploy`.
 
 For `bigbase`, I recommend migrating to `ci-cd-go.yml`. Here's the walkthrough:
 

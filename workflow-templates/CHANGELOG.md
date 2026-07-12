@@ -4,7 +4,7 @@
 
 ### Consolidated — 16 templates → 9 templates
 
-Based on lean/CI/CD principles from the Toyota Way, Continuous Integration (Duvall), and Continuous Delivery (Humble & Farley). Every template is now a complete pipeline with 3 stages: `ci → verify → deploy`.
+Based on lean/CI/CD principles from the Toyota Way, Continuous Integration (Duvall), and Continuous Delivery (Humble & Farley). Every template is now a complete pipeline with 4 stages: `ci → verify → semantic-release → deploy`.
 
 ### Added
 - `ci-cd-node.yml` — Node.js pipeline (replaces ci-node.yml)
