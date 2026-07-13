@@ -1,0 +1,41 @@
+# e01s03 Tasks — Knowledge Hub Entry Points
+# 4 tasks, defined in epic.yaml e01s03
+# Execution: sequential
+
+story_id: e01s03
+title: Create knowledge hub entry points — start-new-project, portfolio-standards, portfolio-architecture
+status: in_progress
+
+tasks:
+  - id: e01s03-t001
+    name: Write how-to/start-new-project.md
+    verify: "grep -q 'type: How-to' docs/how-to/start-new-project.md"
+    description: |
+      THE entry point for new repos. Good Docs how-to template:
+      ## Overview, ## Before you start, ## Step-by-step guide (10 steps),
+      ## See also. Links to portfolio-standards, agent-context-files,
+      branch-protection, CI/CD templates, bigbase-deploy contract, brand tokens.
+
+  - id: e01s03-t002
+    name: Write reference/portfolio-standards.md
+    verify: "grep -q 'type: Reference' docs/reference/portfolio-standards.md"
+    description: |
+      Consolidated standards doc. Good Docs reference template:
+      ## Overview, ## Agent context files (summary + link), ## Branch protection (summary + link),
+      ## CI/CD templates (table: project type → template), ## Deploy contract (summary + link),
+      ## Naming conventions, ## Git safety (summary + link).
+
+  - id: e01s03-t003
+    name: Write concept/portfolio-architecture.md
+    verify: "grep -q 'type: Concept' docs/concept/portfolio-architecture.md"
+    description: |
+      "What provides what" doc. Good Docs concept template:
+      ## Overview, ## Glossary, ## The 4 layers (.github, bigpowers, brand, individual repo),
+      ## What NOT to duplicate, ## How they connect.
+
+  - id: e01s03-t004
+    name: Update docs/index.md with new docs
+    verify: "grep -q 'start-new-project' docs/index.md"
+    description: |
+      Add links to start-new-project.md, portfolio-standards.md, portfolio-architecture.md
+      in the appropriate sections of the bundle root index.
