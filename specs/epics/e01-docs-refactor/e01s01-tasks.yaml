@@ -1,0 +1,104 @@
+story_id: e01s01
+title: Bootstrap docs infrastructure — folder structure, OKF indexes, AGENTS.md update
+status: done
+bcps: 2
+
+tasks:
+  - id: 1
+    description: "Create Good Docs folder structure under docs/"
+    verify: "for d in concept how-to tutorial reference api-reference troubleshooting release-notes style-guide glossary; do [ -d \"docs/$d\" ] || { echo MISSING: $d; exit 1; }; done && echo 'All Good Docs folders exist'"
+    risk: P3
+    status: done
+    allure:
+      severity: minor
+      categories:
+        - "Infrastructure"
+        - "Docs"
+
+  - id: 2
+    description: "Create OKF bundle root docs/index.md"
+    verify: "head -3 docs/index.md | grep -q '# .github Documentation' && echo 'Bundle root OK' || echo 'MISSING: docs/index.md'"
+    risk: P3
+    status: done
+    allure:
+      severity: minor
+      categories:
+        - "Infrastructure"
+        - "Docs"
+
+  - id: 3
+    description: "Create OKF docs/log.md with initial entry"
+    verify: "head -5 docs/log.md | grep -q '2026-07-13' && echo 'Log OK' || echo 'MISSING: docs/log.md'"
+    risk: P3
+    status: done
+    allure:
+      severity: minor
+      categories:
+        - "Infrastructure"
+        - "Docs"
+
+  - id: 4
+    description: "Create placeholder index.md in each Good Docs subfolder"
+    verify: "for d in concept how-to tutorial reference api-reference troubleshooting release-notes style-guide glossary; do [ -f \"docs/$d/index.md\" ] || { echo MISSING: docs/$d/index.md; exit 1; }; done && echo 'All indexes present'"
+    risk: P3
+    status: done
+    allure:
+      severity: minor
+      categories:
+        - "Infrastructure"
+        - "Docs"
+
+  - id: 5
+    description: "Rename docs/tutorials/ to docs/tutorial/ and move content"
+    verify: "[ -d docs/tutorial ] && [ ! -d docs/tutorials ] && [ -f docs/tutorial/new-project-quickstart.md ] && echo 'Rename OK' || echo 'RENAME FAILED'"
+    risk: P3
+    status: done
+    allure:
+      severity: minor
+      categories:
+        - "Infrastructure"
+        - "Docs"
+
+  - id: 6
+    description: "Remove docs/compose/ directory"
+    verify: "[ ! -d docs/compose ] && echo 'compose/ removed' || echo 'compose/ still exists'"
+    risk: P3
+    status: done
+    allure:
+      severity: minor
+      categories:
+        - "Infrastructure"
+        - "Docs"
+
+  - id: 7
+    description: "Remove empty subdirectories under docs/"
+    verify: "empty=$(find docs -type d -empty 2>/dev/null | wc -l); [ \"$empty\" -eq 0 ] && echo 'No empty dirs' || echo \"EMPTY DIRS: $empty\""
+    risk: P3
+    status: done
+    allure:
+      severity: minor
+      categories:
+        - "Infrastructure"
+        - "Docs"
+
+  - id: 8
+    description: "Update AGENTS.md to replace Diátaxis with Good Docs + OKF taxonomy"
+    verify: "grep -q 'Good Docs Project' AGENTS.md && echo 'AGENTS.md updated' || echo 'AGENTS.md NOT updated'"
+    risk: P3
+    status: done
+    allure:
+      severity: minor
+      categories:
+        - "Infrastructure"
+        - "Docs"
+
+  - id: 9
+    description: "Check CONVENTIONS.md for Diátaxis references and update if needed"
+    verify: "grep -q 'Diátaxis' CONVENTIONS.md && echo 'NEEDS UPDATE' || echo 'CONVENTIONS.md OK'"
+    risk: P3
+    status: done
+    allure:
+      severity: minor
+      categories:
+        - "Infrastructure"
+        - "Docs"
