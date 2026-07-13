@@ -37,17 +37,17 @@ Current latest versions of first-party `actions/*` for template updates. Verifie
 
 ## Current template versions vs latest
 
-| Action | Current in templates | Latest | Gap |
-|--------|---------------------|--------|-----|
-| `actions/checkout` | `v4` | `v7.0.0` | **3 major versions behind** |
-| `actions/setup-node` | `v4` | `v6.4.0` | **2 major versions behind** |
-| `actions/setup-python` | `v5` | `v6.3.0` | **1 major version behind** |
-| `actions/setup-go` | `v5` | `v6.5.0` | **1 major version behind** |
-| `actions/upload-artifact` | `v4` | `v7.0.1` | **3 major versions behind** |
-| `actions/download-artifact` | `v4` | `v8.0.1` | **4 major versions behind** |
-| `actions/upload-pages-artifact` | `v3`/`v4` | `v5.0.0` | **1-2 major versions behind** |
-| `actions/deploy-pages` | `v4` | `v5.0.0` | **1 major version behind** |
-| `actions/configure-pages` | `v5` | `v6.0.0` | **1 major version behind** |
+| Action | Current in templates | Latest | Status |
+|--------|---------------------|--------|--------|
+| `actions/checkout` | `v7` | `v7.0.0` | Up to date |
+| `actions/setup-node` | `v6` | `v6.4.0` | Up to date |
+| `actions/setup-python` | `v6` | `v6.3.0` | Up to date |
+| `actions/setup-go` | `v6` | `v6.5.0` | Up to date |
+| `actions/upload-artifact` | `v7` | `v7.0.1` | Up to date |
+| `actions/download-artifact` | `v8` | `v8.0.1` | Up to date |
+| `actions/upload-pages-artifact` | `v5` | `v5.0.0` | Up to date |
+| `actions/deploy-pages` | `v5` | `v5.0.0` | Up to date |
+| `actions/configure-pages` | `v6` | `v6.0.0` | Up to date |
 
 ## Pinning format
 
