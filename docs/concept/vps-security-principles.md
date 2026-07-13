@@ -1,24 +1,22 @@
 ---
-type: explanation
-title: VPS security principles for portfolio projects
+type: Concept
+title: VPS Security Principles for Portfolio Projects
+description: Security principles and defense layers for the bigbase Contabo VPS that serves all portfolio projects.
+tags: [vps, security, bigbase, contabo, infrastructure]
+timestamp: 2026-07-13
+provenance: docs/explanation/vps-security-principles.md
+story: e01s02
 ---
 
-# VPS security principles for portfolio projects
+# VPS Security Principles for Portfolio Projects
 
-Why we maintain the bigbase VPS with automatic updates and SSH key authentication.
+## Overview
 
-## Context
-
-bigbase is the central application repo deployed to a Contabo VPS (6 vCPU/16GB RAM, EU region). It serves:
-- `*.bigbase.click` domains via Caddy reverse proxy
-- SQLite database
-- Go binary managed by systemd
-
-As the only production VPS in the portfolio, its security posture affects all deployed projects.
+This document explains why and how we secure the bigbase VPS — the central application server hosted on Contabo (6 vCPU/16GB RAM, EU region). It serves all `*.bigbase.click` domains via Caddy reverse proxy, a SQLite database, and a Go binary managed by systemd. As the only production VPS in the portfolio, its security posture affects all deployed projects.
 
 ## Defense layers
 
-```
+```text
 ┌─────────────────────────────────────┐
 │  Contabo API                        │  Instance management, snapshots
 ├─────────────────────────────────────┤
@@ -48,21 +46,11 @@ As the only production VPS in the portfolio, its security posture affects all de
 - Ubuntu publishes security patches for known CVEs promptly
 - Unpatched servers are primary targets for automated scanners
 - Manual updates require human discipline — automation removes this dependency
-- `unattended-upgrades` can be configured for security-only patches to avoid breaking changes
+- `unattended-upgrades` can be configured for security-only patches
 
 ## Why Contabo API is limited for security
 
-The Contabo API provides:
-- Instance lifecycle (start/stop/restart/reinstall)
-- Snapshot management
-- Audit history
-
-It does NOT provide:
-- OS package management (apt/dpkg)
-- Kernel updates
-- Security monitoring
-
-Therefore, SSH access with key authentication remains the primary security boundary.
+The Contabo API provides instance lifecycle management and snapshot capabilities but does NOT provide OS package management, kernel updates, or security monitoring. SSH access with key authentication remains the primary security boundary.
 
 ## Why snapshots matter
 
@@ -72,12 +60,11 @@ Before major changes (kernel updates, config changes):
 3. If something breaks, revert to snapshot
 
 ```bash
-# Create snapshot via cntb
 cntb create snapshot --instance-id <ID> --name "pre-update-YYYY-MM-DD"
 ```
 
 ## References
 
-- `docs/reference/contabo-vps-api.md` — API details
-- `docs/how-to/vps-security-updates.md` — Update setup
+- [Contabo VPS API Reference](../api-reference/contabo-vps-api.md) — API details
+- [VPS Security Updates How-to](../how-to/vps-security-updates.md) — Update setup
 - [Contabo SSH setup guide](https://help.contabo.com/en/support/solutions/articles/103000271398-how-do-i-set-up-an-ssh-connection-)

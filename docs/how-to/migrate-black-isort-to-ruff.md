@@ -1,8 +1,24 @@
+---
+type: How-to
+title: Migrate from black + isort to ruff
+description: Step-by-step guide for migrating Python projects from black + isort to the ruff linter/formatter.
+tags: [python, ruff, linting, formatting, migration]
+timestamp: 2026-07-13
+provenance: docs/how-to/migrate-black-isort-to-ruff.md
+---
+
 # Migrate from black + isort to ruff
 
-> **Why:** ruff replaces black (formatting), isort (import sorting), and flake8 (linting) with a single tool. It's 10-100x faster and catches ~120 additional violations. The `.github` CI templates assume ruff.
+## Overview
 
-## Steps
+Ruff replaces black (formatting), isort (import sorting), and flake8 (linting) with a single tool. It's 10-100x faster than the tools it replaces and catches ~120 additional violations. The `.github` CI templates assume ruff.
+
+## Before you start
+
+- Python project with `black`, `isort`, and/or `flake8` in dependencies
+- `pyproject.toml` or `setup.cfg` for configuration
+
+## Step-by-step guide
 
 ### 1. Remove old tools
 
@@ -20,21 +36,7 @@ pip install ruff
 
 ### 3. Replace pre-commit hooks
 
-In `.pre-commit-config.yaml`, replace:
-
-```yaml
-# OLD — remove these
-- repo: https://github.com/psf/black
-  rev: ...
-  hooks:
-    - id: black
-- repo: https://github.com/pycqa/isort
-  rev: ...
-  hooks:
-    - id: isort
-```
-
-With the template from `templates/pre-commit/python-pre-commit.yaml`:
+In `.pre-commit-config.yaml`, replace black and isort hooks with:
 
 ```yaml
 - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -90,3 +92,8 @@ pre-commit run --all-files
 | `UP006` (use `list` not `List`) | Ruff auto-fixes this |
 | Line length violations | Set `line-length` in `[tool.ruff]` to match your old config |
 | Import ordering changes | Ruff's `I` rules handle this; run `ruff check --fix .` |
+
+## See also
+
+- [Ruff documentation](https://docs.astral.sh/ruff/)
+- [CI/CD Templates](../reference/contracts/bigbase-deploy-contract.md)
