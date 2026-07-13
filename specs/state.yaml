@@ -1,18 +1,24 @@
 active_flow: build_epic
 active_epic: e01
-active_story: e01s01
+active_story: e01s02
 bug_id: null
 bigpowers_version: 2.76.1
 bug_cycle: null
 epic_cycle:
   step: 8
   fast_mode: false
-  story_bcps: 2
+  story_bcps: 8
   audit_result: pass
 handoff:
   context: >
-    Docs refactor planned. grill-with-docs session completed (6 rounds).
-    Good Docs Project templates (canonical GitLab) + OKF v0.1 + bigpowers conventions.
-    Diátaxis deprecated. 5 stories in e01-docs-refactor. First story: e01s01 (bootstrap infrastructure).
-    All planning artifacts in specs/epics/e01-docs-refactor/epic.yaml.
-  next_skill: security-review
+    e01s02 complete. All 8 tasks done:
+    1. OKF frontmatter on all docs (21 files)
+    2. explanation/ → concept/ conversion with Good Docs concept template
+    3. How-to template (## Overview, ## Before you start, ## Step-by-step guide, ## See also)
+    4. Reference template (## Overview + structured entries)
+    5. contabo-vps-api.md → api-reference/ with API Reference template
+    6. audit-history/ consolidated into reference/audit-history.md
+    7. Akita naming: bigpowers-learnings → bigpowers-methodology-overview, git-safety-hooks → guard-git-safety-hooks, new-project-quickstart → github-quickstart
+    8. Frontmatter standardization: Explanation→Concept, lowercase→PascalCase
+    preflight: PASS, audit: PASS, bcps: 8
+  next_skill: release-branch

@@ -1,9 +1,14 @@
 ---
-type: reference
-title: GitHub Actions version matrix
+type: Reference
+title: GitHub Actions Version Matrix
+description: Current latest versions of first-party GitHub Actions for template updates, verified 2026-07-12.
+tags: [github-actions, versions, ci-cd, templates]
+timestamp: 2026-07-13
 ---
 
-# GitHub Actions version matrix
+# GitHub Actions Version Matrix
+
+## Overview
 
 Current latest versions of first-party `actions/*` for template updates. Verified 2026-07-12.
 
@@ -35,7 +40,7 @@ Current latest versions of first-party `actions/*` for template updates. Verifie
 | `actions/configure-pages` | `v6.0.0` | — | Pages configuration |
 | `actions/create-github-app-token` | `v3.2.0` | `bcd2ba49218906704ab6c1aa796996da409d3eb1` | App tokens |
 
-## Current template versions vs latest
+## Current template versions
 
 | Action | Current in templates | Latest | Status |
 |--------|---------------------|--------|--------|
@@ -43,11 +48,6 @@ Current latest versions of first-party `actions/*` for template updates. Verifie
 | `actions/setup-node` | `v6` | `v6.4.0` | Up to date |
 | `actions/setup-python` | `v6` | `v6.3.0` | Up to date |
 | `actions/setup-go` | `v6` | `v6.5.0` | Up to date |
-| `actions/upload-artifact` | `v7` | `v7.0.1` | Up to date |
-| `actions/download-artifact` | `v8` | `v8.0.1` | Up to date |
-| `actions/upload-pages-artifact` | `v5` | `v5.0.0` | Up to date |
-| `actions/deploy-pages` | `v5` | `v5.0.0` | Up to date |
-| `actions/configure-pages` | `v6` | `v6.0.0` | Up to date |
 
 ## Pinning format
 
@@ -59,14 +59,7 @@ Current latest versions of first-party `actions/*` for template updates. Verifie
 - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
 ```
 
-## When to update
-
-- **Major version bump**: Check changelog for breaking changes before updating
-- **Template updates**: Update all `workflow-templates/*.yml` files together
-- **Per-repo updates**: Update individual repos as part of regular maintenance
-
 ## References
 
 - [GitHub Actions releases](https://github.com/actions)
-- [GitHub Actions changelogs](https://github.com/actions/release)
-- `docs/explanation/github-actions-best-practices.md` for security guidance
+- [GitHub Actions Best Practices](../concept/github-actions-best-practices.md) — Security guidance

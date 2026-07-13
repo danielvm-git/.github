@@ -1,0 +1,86 @@
+story_id: e01s02
+title: Refactor existing docs to Good Docs templates + OKF frontmatter
+status: done
+bcps: 8
+
+tasks:
+  - id: 1
+    description: "Add OKF frontmatter to all existing docs"
+    verify: "for f in docs/concept/*.md docs/how-to/*.md docs/reference/*.md docs/tutorial/*.md docs/api-reference/*.md; do [[ $f == */index.md || $f == */log.md ]] && continue; grep -q '^---' $f || echo MISSING_FRONTMATTER: $f; done"
+    risk: P3
+    status: done
+    allure:
+      severity: normal
+      categories:
+        - "Docs"
+
+  - id: 2
+    description: "Convert explanation/ docs to concept/ with Good Docs concept template"
+    verify: "grep -q 'type: Concept' docs/concept/bigpowers-methodology-overview.md"
+    risk: P2
+    status: done
+    allure:
+      severity: critical
+      categories:
+        - "Docs"
+
+  - id: 3
+    description: "Apply Good Docs how-to template to all how-to/ docs"
+    verify: "grep -q '## Before you start' docs/how-to/guard-git-safety-hooks.md"
+    risk: P3
+    status: done
+    allure:
+      severity: normal
+      categories:
+        - "Docs"
+
+  - id: 4
+    description: "Apply Good Docs reference template to all reference/ docs"
+    verify: "grep -q '## Overview' docs/reference/branch-protection-rules.md"
+    risk: P3
+    status: done
+    allure:
+      severity: normal
+      categories:
+        - "Docs"
+
+  - id: 5
+    description: "Move contabo-vps-api.md from reference/ to api-reference/"
+    verify: "[ -f docs/api-reference/contabo-vps-api.md ] && [ ! -f docs/reference/contabo-vps-api.md ]"
+    risk: P3
+    status: done
+    allure:
+      severity: normal
+      categories:
+        - "Docs"
+        - "Infrastructure"
+
+  - id: 6
+    description: "Consolidate audit-history/ into reference/audit-history.md"
+    verify: "[ -f docs/reference/audit-history.md ] && [ ! -d docs/reference/audit-history ]"
+    risk: P2
+    status: done
+    allure:
+      severity: critical
+      categories:
+        - "Docs"
+
+  - id: 7
+    description: "Apply Akita naming to all doc filenames"
+    verify: "echo 'Manual check: verify no filename returns >5 grep results across portfolio'"
+    risk: P3
+    status: done
+    allure:
+      severity: normal
+      categories:
+        - "Docs"
+
+  - id: 8
+    description: "Fix inconsistent frontmatter values"
+    verify: "grep -r 'type: Explanation' docs/ || echo 'No Explanation types remain'"
+    risk: P3
+    status: done
+    allure:
+      severity: normal
+      categories:
+        - "Docs"
