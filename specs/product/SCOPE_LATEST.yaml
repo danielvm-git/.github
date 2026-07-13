@@ -1,0 +1,26 @@
+# .github — Portfolio Template Repo Scope
+
+version: 1.0.0
+updated: 2026-07-13
+
+## Vision
+
+The `.github` repo is the central knowledge hub and template layer for the danielvm-git portfolio.
+It provides CI/CD templates, deploy actions, documentation, and lessons learned that all 28+ repos inherit.
+
+## In Scope
+
+- CI/CD workflow templates (workflow-templates/)
+- bigbase-deploy composite action (actions/bigbase-deploy/)
+- Documentation following Good Docs Project templates + OKF format (docs/)
+- README templates for all stack variants (templates/readmes/)
+- Portfolio-wide standards, lessons learned, and patterns
+- Agent context file conventions (AGENTS.md pattern)
+- Brand identity integration pointers (brand/)
+
+## Out of Scope
+
+- bigpowers methodology (lives in bigpowers repo)
+- Brand identity / design tokens (lives in brand_identity_danielvm)
+- Individual repo code, docs, or specs
+- Runtime code (this is a template/documentation repo)

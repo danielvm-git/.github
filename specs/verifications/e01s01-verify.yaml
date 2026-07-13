@@ -1,0 +1,90 @@
+story_id: e01s01
+verified_at: "2026-07-13T15:07:00-03:00"
+verifier: verify-work
+risk: P3
+phases:
+  branch_check:
+    passed: true
+    branch: feat/e01s01-bootstrap-docs-infrastructure
+  preflight:
+    passed: true
+    command: "yamllint workflow-templates/ workflows/ actions/"
+    exit_code: 0
+    note: "3 warnings (pre-existing), 0 errors"
+  task_verifications:
+    passed: true
+    tasks:
+      - id: 1
+        description: "Create Good Docs folder structure"
+        verify: "All Good Docs folders exist"
+        passed: true
+      - id: 2
+        description: "Create OKF bundle root docs/index.md"
+        verify: "Bundle root OK"
+        passed: true
+      - id: 3
+        description: "Create OKF docs/log.md"
+        verify: "Log OK"
+        passed: true
+      - id: 4
+        description: "Create placeholder index.md in each Good Docs subfolder"
+        verify: "All indexes present"
+        passed: true
+      - id: 5
+        description: "Rename docs/tutorials/ to docs/tutorial/"
+        verify: "Rename OK"
+        passed: true
+      - id: 6
+        description: "Remove docs/compose/ directory"
+        verify: "compose/ removed"
+        passed: true
+      - id: 7
+        description: "Remove empty subdirectories"
+        verify: "No empty dirs"
+        passed: true
+      - id: 8
+        description: "Update AGENTS.md taxonomy"
+        verify: "AGENTS.md updated"
+        passed: true
+      - id: 9
+        description: "Check CONVENTIONS.md for Diátaxis"
+        verify: "CONVENTIONS.md OK"
+        passed: true
+  manual:
+    steps:
+      - step: "Verify directory structure"
+        expected: "Good Docs folders present, old folders removed"
+        actual: "9 Good Docs folders confirmed. compose/ removed. tutorials/ renamed to tutorial/. explanation/ preserved for e01s02."
+        passed: true
+      - step: "Verify bundle root index"
+        expected: "Lists all sections with descriptions"
+        actual: "All 9 sections listed with one-line descriptions"
+        passed: true
+      - step: "Verify log"
+        expected: "Initial 2026-07-13 entry present"
+        actual: "Initialization entry confirmed with Good Docs + OKF migration note"
+        passed: true
+      - step: "Verify all section indexes"
+        expected: "All 9 subfolder index files present"
+        actual: "All 9 index.md files present"
+        passed: true
+      - step: "Verify tutorial content"
+        expected: "Content migrated from tutorials/"
+        actual: "new-project-quickstart.md and index.md present"
+        passed: true
+      - step: "Verify AGENTS.md taxonomy"
+        expected: "Good Docs Project referenced"
+        actual: "Line 62 updated with Good Docs Project templates + OKF frontmatter"
+        passed: true
+      - step: "Verify no Diátaxis"
+        expected: "No Diátaxis references remain"
+        actual: "0 matches — Diátaxis fully removed from AGENTS.md"
+        passed: true
+  gaps:
+    closed: true
+    count: 0
+terminal_verdict:
+  command: "yamllint workflow-templates/ workflows/ actions/"
+  exit_code: 0
+  captured_at: "2026-07-13T15:07:00-03:00"
+  note: "Pre-existing warnings only — no new issues introduced"

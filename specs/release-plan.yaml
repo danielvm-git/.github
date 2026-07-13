@@ -1,0 +1,23 @@
+# .github — Release Plan
+
+version: 0.1.0
+updated: 2026-07-13
+status: active
+
+release:
+  codename: docs-refactor
+  bump_hint: minor
+  description: Refactor docs to Good Docs Project templates + OKF format. Establish docs/ as the central knowledge hub for the portfolio.
+
+epics:
+  - id: e01
+    slug: docs-refactor
+    title: Refactor docs to Good Docs + OKF — central knowledge hub
+    wsjf: 4.3
+    status: ready
+    stories:
+      - e01s01
+      - e01s02
+      - e01s03
+      - e01s04
+      - e01s05
