@@ -19,6 +19,6 @@ stories:
     started_at: null
     completed_at: null
   e01s05:
-    status: pending
-    started_at: null
+    status: in_progress
+    started_at: "2026-07-13T15:18:00-03:00"
     completed_at: null
