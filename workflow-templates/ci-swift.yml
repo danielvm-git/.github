@@ -33,18 +33,3 @@ jobs:
 
       - name: Test
         run: swift test -v --parallel
-
-      # --- Xcode app target (use instead of the two steps above) ---
-      # - name: Build
-      #   run: |
-      #     xcodebuild build \
-      #       -project YourApp.xcodeproj \
-      #       -scheme YourApp \
-      #       -destination 'platform=macOS'
-      # - name: Test
-      #   run: |
-      #     xcodebuild test \
-      #       -project YourApp.xcodeproj \
-      #       -scheme YourApp \
-      #       -destination 'platform=macOS' \
-      #       -resultBundlePath TestResults
