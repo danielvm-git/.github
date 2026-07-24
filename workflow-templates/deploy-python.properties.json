@@ -1,0 +1,6 @@
+{
+  "name": "Deploy (Python)",
+  "description": "Deploy a Python project to BigBase after Test Build Release succeeds. Requires deploy-meta artifact.",
+  "iconName": "python",
+  "categories": ["Deployment", "Python"]
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Deploy (Static Site)",
+  "description": "Deploy a static site to BigBase after Test Build Release succeeds. Requires deploy-meta artifact.",
+  "iconName": "globe",
+  "categories": ["Deployment", "Pages"]
+}

@@ -1,6 +1,0 @@
-{
-  "name": "CI (Python)",
-  "description": "Lint, typecheck, and test a Python project with ruff, mypy, and pytest",
-  "iconName": "python",
-  "categories": ["Continuous integration", "Python"]
-}

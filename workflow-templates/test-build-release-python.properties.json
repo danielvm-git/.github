@@ -1,0 +1,6 @@
+{
+  "name": "Test Build Release (Python)",
+  "description": "Test, lint, typecheck, build, verify commits, and release a Python project with uv. Pair with Deploy (Python).",
+  "iconName": "python",
+  "categories": ["Continuous integration", "Python"]
+}

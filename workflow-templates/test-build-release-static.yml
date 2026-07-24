@@ -1,12 +1,12 @@
-name: CI/CD
-# version: 2.0.0 — see workflow-templates/CHANGELOG.md
-# For static sites: Astro, plain HTML, Hugo, Vue SPA, React SPA, etc.
+name: Test Build Release
+# version: 3.0.0 — see workflow-templates/CHANGELOG.md
+# Copy to .github/workflows/test-build-release.yml and pair with deploy-static.yml → deploy.yml
 
 on:
   push:
-    branches: [main, develop, master]
+    branches: [main]
   pull_request:
-    branches: [main, develop, master]
+    branches: [main]
 
 permissions:
   contents: read
@@ -20,16 +20,50 @@ env:
   SITE_URL: "https://CHANGE-ME.bigbase.click"
 
 jobs:
-  ci:
+  test:
     runs-on: ubuntu-22.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
+
+      - name: Preflight
+        run: |
+          if [ -f scripts/preflight.sh ]; then
+            bash scripts/preflight.sh
+          elif [ -f Makefile ] && grep -q '^preflight:' Makefile; then
+            make preflight
+          elif command -v npm >/dev/null 2>&1 && grep -q '"preflight"' package.json 2>/dev/null; then
+            npm run preflight
+          else
+            echo "WARN: No preflight script found — add scripts/preflight.sh"
+          fi
+
+      - name: Check Conventional Commits
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+        run: |
+          git log origin/main..HEAD --oneline | while read -r line; do
+            if ! echo "$line" | grep -qE "^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: "; then
+              echo "FAIL: Non-conventional commit: $line"
+              exit 1
+            fi
+          done
+          echo "PASS: All commits follow Conventional Commits"
+
+      - name: Check no AI agent attribution
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+        run: |
+          if git log origin/main..HEAD --format="%B" | grep -qiE '^co[- ]authored[- ]by:'; then
+            echo "FAIL: Co-authored-by: footer found — blocked by CONVENTIONS.md"
+            exit 1
+          fi
+          echo "PASS: No AI agent attribution"
 
       - name: Install dependencies
         run: npm ci
@@ -43,60 +77,42 @@ jobs:
       - name: Test
         run: npm test --if-present
 
+  build:
+    needs: [test]
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Build
         run: npm run build
 
-      - name: Upload build artifact
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      - name: Write deploy-meta
+        run: |
+          jq -n \
+            --arg sha "${{ github.sha }}" \
+            --arg ref "${{ github.ref_name }}" \
+            --arg app_type "${{ env.APP_TYPE }}" \
+            '{sha: $sha, ref: $ref, app_type: $app_type}' > deploy-meta.json
+
+      - name: Upload deploy-meta artifact
         uses: actions/upload-artifact@v7
         with:
-          name: dist
-          path: dist/
+          name: deploy-meta
+          path: deploy-meta.json
           retention-days: 3
 
-      - name: Export deploy token
-        run: echo "DEPLOY_TOKEN=${{ secrets.BIGBASE_DEPLOY_TOKEN }}" >> "$GITHUB_ENV"
-
-  verify:
-    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
-    runs-on: ubuntu-22.04
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      - name: Preflight
-        run: |
-          if [ -f scripts/preflight.sh ]; then
-            bash scripts/preflight.sh
-          elif [ -f Makefile ] && grep -q '^preflight:' Makefile; then
-            make preflight
-          else
-            echo "WARN: No preflight script found — add scripts/preflight.sh"
-          fi
-
-      - name: Check Conventional Commits
-        run: |
-          git log origin/main..HEAD --oneline | while read -r line; do
-            if ! echo "$line" | grep -qE "^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: "; then
-              echo "FAIL: Non-conventional commit: $line"
-              exit 1
-            fi
-          done
-          echo "PASS: All commits follow Conventional Commits"
-
-      - name: Check no AI agent attribution
-        run: |
-          if git log origin/main..HEAD --format="%B" | grep -qiE '^co[- ]authored[- ]by:'; then
-            echo "FAIL: Co-authored-by: footer found — blocked by CONVENTIONS.md"
-            exit 1
-          fi
-          echo "PASS: No AI agent attribution"
-
-  semantic-release:
+  release:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: [ci, verify]
+    needs: [build]
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     permissions:
@@ -120,24 +136,3 @@ jobs:
         run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: [ci, verify, semantic-release]
-    runs-on: ubuntu-22.04
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/download-artifact@v8
-        with:
-          name: dist
-          path: dist/
-
-      - name: Deploy to BigBase
-        uses: danielvm-git/.github/actions/bigbase-deploy@main
-        with:
-          site_id: ${{ secrets.BIGBASE_SITE_ID }}
-          app_type: ${{ env.APP_TYPE }}
-          site_url: ${{ env.SITE_URL }}
-          deploy_token: ${{ secrets.BIGBASE_DEPLOY_TOKEN }}

@@ -1,0 +1,6 @@
+{
+  "name": "Test Build Release (Static Site)",
+  "description": "Test, lint, build, verify commits, and release a static site (Astro, Vue SPA, React, plain HTML). Pair with Deploy (Static Site).",
+  "iconName": "globe",
+  "categories": ["Continuous integration", "Pages"]
+}
