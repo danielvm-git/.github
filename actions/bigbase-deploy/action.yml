@@ -3,20 +3,25 @@ description: >
   Deploy a built site/app to bigbase.click. Consolidates the pattern found
   live in astrobiologia, big-bolao, big-library, and big-olive-books into
   one hardened step: scoped token auth (never email/password), token
-  masking, and a single retry-based health check.
+  masking, structured identity error mapping, and a single retry-based
+  health check.
 
 inputs:
   site_id:
     description: 'BigBase site ID (secrets.BIGBASE_SITE_ID recommended, not hardcoded)'
     required: true
   app_type:
-    description: 'static | python | node | go'
+    description: >
+      Deploy profile: static | node | go | python | php |
+      astro-static | astro-ssr | astro-server | astro-hybrid |
+      sveltekit-static | sveltekit-node | sveltekit-ssr.
+      Framework aliases map to static or node on the host.
     required: true
   site_url:
     description: 'Full URL to health-check after deploy (e.g. https://myapp.bigbase.click)'
     required: true
   deploy_token:
-    description: 'Scoped BigBase deploy token (secrets.BIGBASE_DEPLOY_TOKEN). Provision via bigbase_provision_ci_credentials — do NOT use account email/password.'
+    description: 'Scoped BigBase deploy token (secrets.BIGBASE_DEPLOY_TOKEN). Provision via provision_ci_credentials — do NOT use account email/password.'
     required: true
   bigbase_server:
     description: 'BigBase server base URL'
@@ -44,13 +49,34 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Validate token present
+    - name: Validate token and app_type
       shell: bash
+      env:
+        DEPLOY_TOKEN: ${{ inputs.deploy_token }}
+        APP_TYPE: ${{ inputs.app_type }}
       run: |
-        if [ -z "${{ inputs.deploy_token }}" ]; then
-          echo "::error::deploy_token not set. Provision a scoped token via bigbase_provision_ci_credentials — do not use account email/password."
+        if [ -z "$DEPLOY_TOKEN" ]; then
+          echo "::error::deploy_token not set. Provision a scoped token via provision_ci_credentials — do not use account email/password."
           exit 1
         fi
+        case "$DEPLOY_TOKEN" in
+          bb_dep_*) ;;
+          *)
+            echo "::error::deploy_token must be a bb_dep_ site key (got unexpected prefix). Use provision_ci_credentials."
+            exit 1
+            ;;
+        esac
+        case "$APP_TYPE" in
+          static|node|go|python|php|\
+          astro-static|astro-ssr|astro-server|astro-hybrid|\
+          sveltekit-static|sveltekit-node|sveltekit-ssr)
+            echo "Preflight OK: app_type=$APP_TYPE"
+            ;;
+          *)
+            echo "::error::Unsupported app_type='$APP_TYPE'. Use static|node|go|python|php or Astro/SvelteKit aliases."
+            exit 1
+            ;;
+        esac
 
     - name: Mask token
       shell: bash
@@ -71,6 +97,10 @@ runs:
         if [ -z "$REF" ]; then
           REF="$BRANCH"
         fi
+        case "$APP_TYPE" in
+          astro-static|sveltekit-static) APP_TYPE=static ;;
+          astro-ssr|astro-server|astro-hybrid|sveltekit-node|sveltekit-ssr) APP_TYPE=node ;;
+        esac
         PAYLOAD=$(jq -n \
           --arg branch "$BRANCH" \
           --arg ref "$REF" \
@@ -102,20 +132,38 @@ runs:
           fi
           exit 0
         fi
-        echo "::error::Deploy API returned HTTP ${HTTP_CODE}"
+        BODY=""
         if [ -s "$RESPONSE_FILE" ]; then
-          # Surface JSON error body for DX. Token is ::add-mask::'d; also strip
-          # from body in case the API echoes Authorization material.
           BODY=$(cat "$RESPONSE_FILE")
           BODY="${BODY//$DEPLOY_TOKEN/***REDACTED***}"
-          if printf '%s' "$BODY" | jq empty 2>/dev/null; then
-            printf '%s\n' "$BODY" | jq .
-          else
-            printf '%s\n' "$BODY"
-          fi
+        fi
+        CODE=""
+        HINT=""
+        ERRMSG=""
+        if printf '%s' "$BODY" | jq empty 2>/dev/null; then
+          CODE=$(printf '%s' "$BODY" | jq -r '.code // empty')
+          HINT=$(printf '%s' "$BODY" | jq -r '.hint // empty')
+          ERRMSG=$(printf '%s' "$BODY" | jq -r '.error // empty')
+          printf '%s\n' "$BODY" | jq .
+        elif [ -n "$BODY" ]; then
+          printf '%s\n' "$BODY"
         else
           echo "(empty response body)"
         fi
+        case "$CODE" in
+          site_not_found)
+            echo "::error::site_not_found — BIGBASE_SITE_ID does not match an existing site. ${HINT}"
+            ;;
+          key_site_mismatch)
+            echo "::error::key_site_mismatch — BIGBASE_DEPLOY_TOKEN is bound to a different site than BIGBASE_SITE_ID. Rotate both secrets together via provision_ci_credentials. ${HINT}"
+            ;;
+          framework_mode_ambiguous|app_type_mismatch|tool_missing|site_name_taken)
+            echo "::error::${CODE} — ${ERRMSG}. ${HINT}"
+            ;;
+          *)
+            echo "::error::Deploy API returned HTTP ${HTTP_CODE}${CODE:+ ($CODE)}${ERRMSG:+: $ERRMSG}"
+            ;;
+        esac
         exit 1
 
     - name: Health check
