@@ -36,10 +36,10 @@ fi
 # Validate AGENTS.md has no placeholders
 if grep -q '\[One sentence' "$REPO_ROOT/AGENTS.md" 2>/dev/null; then
   echo "FAIL: AGENTS.md still has placeholder text"
-  ((FAIL++))
+  ((FAIL++)) || true
 else
   echo "PASS: AGENTS.md is filled in"
-  ((PASS++))
+  ((PASS++)) || true
 fi
 
 echo ""
