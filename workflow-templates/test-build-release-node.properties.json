@@ -1,0 +1,6 @@
+{
+  "name": "Test Build Release (Node.js)",
+  "description": "Checklist pipeline: test, build, release for Node.js — pair with deploy-node.yml",
+  "iconName": "node",
+  "categories": ["Continuous integration", "JavaScript", "TypeScript"]
+}
