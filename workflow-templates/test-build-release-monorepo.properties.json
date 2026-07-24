@@ -1,0 +1,6 @@
+{
+  "name": "Test Build Release (Monorepo)",
+  "description": "Multi-language test job (Node, Python, Rust, Go, Shell), verify commits, deploy-meta, and semantic-release. Pair with Deploy (Monorepo).",
+  "iconName": "package-dependencies",
+  "categories": ["Continuous integration", "Deployment"]
+}

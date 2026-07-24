@@ -1,0 +1,166 @@
+name: Test Build Release
+# version: 3.0.0 — see workflow-templates/CHANGELOG.md
+# Copy to .github/workflows/test-build-release.yml and pair with deploy-monorepo.yml → deploy.yml
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pipeline-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  APP_TYPE: static
+  SITE_URL: "https://CHANGE-ME.bigbase.click"
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Preflight
+        run: |
+          if [ -f scripts/preflight.sh ]; then
+            bash scripts/preflight.sh
+          else
+            echo "WARN: No preflight script found"
+          fi
+
+      - name: Check Conventional Commits
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+        run: |
+          git log origin/main..HEAD --oneline | while read -r line; do
+            if ! echo "$line" | grep -qE "^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: "; then
+              echo "FAIL: Non-conventional commit: $line"
+              exit 1
+            fi
+          done
+          echo "PASS: All commits follow Conventional Commits"
+
+      - name: Check no AI agent attribution
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+        run: |
+          if git log origin/main..HEAD --format="%B" | grep -qiE '^co[- ]authored[- ]by:'; then
+            echo "FAIL: Co-authored-by: footer found"
+            exit 1
+          fi
+          echo "PASS: No AI agent attribution"
+
+      - uses: actions/setup-node@v6
+        if: hashFiles('package.json') != ''
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: npm ci
+        if: hashFiles('package.json') != ''
+        run: npm ci
+
+      - name: npm lint
+        if: hashFiles('package.json') != ''
+        run: npm run lint --if-present
+
+      - name: npm typecheck
+        if: hashFiles('package.json') != ''
+        run: npm run typecheck --if-present
+
+      - name: npm test
+        if: hashFiles('package.json') != ''
+        run: npm test --if-present
+
+      - uses: actions/setup-python@v6
+        if: hashFiles('pyproject.toml', 'requirements.txt') != ''
+        with:
+          python-version: '3.12'
+
+      - name: ruff and pytest
+        if: hashFiles('pyproject.toml', 'requirements.txt') != ''
+        run: |
+          pip install ruff pytest
+          ruff check .
+          pytest --if-present
+
+      - uses: dtolnay/rust-toolchain@stable
+        if: hashFiles('Cargo.toml') != ''
+        with:
+          components: clippy
+
+      - name: cargo clippy and test
+        if: hashFiles('Cargo.toml') != ''
+        run: |
+          cargo clippy -- -D warnings
+          cargo test
+
+      - uses: actions/setup-go@v6
+        if: hashFiles('go.mod') != ''
+        with:
+          go-version: '1.22'
+
+      - name: go vet and test
+        if: hashFiles('go.mod') != ''
+        run: |
+          go vet ./...
+          go test ./...
+
+      - name: Shell checks
+        if: hashFiles('**/*.sh') != ''
+        run: shellcheck **/*.sh
+
+  build:
+    needs: [test]
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Write deploy-meta
+        run: |
+          jq -n \
+            --arg sha "${{ github.sha }}" \
+            --arg ref "${{ github.ref_name }}" \
+            --arg app_type "${{ env.APP_TYPE }}" \
+            '{sha: $sha, ref: $ref, app_type: $app_type}' > deploy-meta.json
+
+      - name: Upload deploy-meta artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: deploy-meta
+          path: deploy-meta.json
+          retention-days: 3
+
+  release:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [build]
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Install semantic-release
+        run: npm install --no-save semantic-release @semantic-release/changelog @semantic-release/git
+
+      - name: Run semantic-release
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

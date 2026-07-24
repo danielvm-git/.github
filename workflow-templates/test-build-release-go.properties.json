@@ -1,0 +1,6 @@
+{
+  "name": "Test Build Release (Go)",
+  "description": "Lint (golangci-lint v1.64.8), vet, test, build, verify commits, and release a Go project. Pair with Deploy (Go).",
+  "iconName": "go",
+  "categories": ["Continuous integration", "Deployment", "Go"]
+}

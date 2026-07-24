@@ -1,0 +1,6 @@
+{
+  "name": "Deploy (Monorepo)",
+  "description": "Deploy a monorepo to BigBase after Test Build Release succeeds. Requires deploy-meta artifact.",
+  "iconName": "package-dependencies",
+  "categories": ["Deployment"]
+}

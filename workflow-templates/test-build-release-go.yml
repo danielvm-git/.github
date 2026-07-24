@@ -1,11 +1,12 @@
-name: CI/CD
-# version: 2.0.0 — see workflow-templates/CHANGELOG.md
+name: Test Build Release
+# version: 3.0.0 — see workflow-templates/CHANGELOG.md
+# Copy to .github/workflows/test-build-release.yml and pair with deploy-go.yml → deploy.yml
 
 on:
   push:
-    branches: [main, develop, master]
+    branches: [main]
   pull_request:
-    branches: [main, develop, master]
+    branches: [main]
 
 permissions:
   contents: read
@@ -20,7 +21,74 @@ env:
   SITE_URL: "https://CHANGE-ME.bigbase.click"
 
 jobs:
-  ci:
+  lint:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '${{ env.GO_VERSION }}'
+          cache: true
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.64.8
+
+  test:
+    needs: [lint]
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '${{ env.GO_VERSION }}'
+          cache: true
+
+      - name: Preflight
+        run: |
+          if [ -f scripts/preflight.sh ]; then
+            bash scripts/preflight.sh
+          elif [ -f Makefile ] && grep -q '^preflight:' Makefile; then
+            make preflight
+          else
+            echo "WARN: No preflight script found — add scripts/preflight.sh"
+          fi
+
+      - name: Check Conventional Commits
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+        run: |
+          git log origin/main..HEAD --oneline | while read -r line; do
+            if ! echo "$line" | grep -qE "^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: "; then
+              echo "FAIL: Non-conventional commit: $line"
+              exit 1
+            fi
+          done
+          echo "PASS: All commits follow Conventional Commits"
+
+      - name: Check no AI agent attribution
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+        run: |
+          if git log origin/main..HEAD --format="%B" | grep -qiE '^co[- ]authored[- ]by:'; then
+            echo "FAIL: Co-authored-by: footer found — blocked by CONVENTIONS.md"
+            exit 1
+          fi
+          echo "PASS: No AI agent attribution"
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Test
+        run: go test ./... -count=1 -timeout 120s
+
+  build:
+    needs: [test]
     runs-on: ubuntu-22.04
     timeout-minutes: 15
     steps:
@@ -34,69 +102,24 @@ jobs:
       - name: Build
         run: go build ./...
 
-      - name: Vet
-        run: go vet ./...
+      - name: Write deploy-meta
+        run: |
+          jq -n \
+            --arg sha "${{ github.sha }}" \
+            --arg ref "${{ github.ref_name }}" \
+            --arg app_type "${{ env.APP_TYPE }}" \
+            '{sha: $sha, ref: $ref, app_type: $app_type}' > deploy-meta.json
 
-      - name: Test
-        run: go test ./... -count=1 -timeout 120s
-
-      - name: Export deploy token
-        run: echo "DEPLOY_TOKEN=${{ secrets.BIGBASE_DEPLOY_TOKEN }}" >> "$GITHUB_ENV"
-
-  lint:
-    runs-on: ubuntu-22.04
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-go@v6
+      - name: Upload deploy-meta artifact
+        uses: actions/upload-artifact@v7
         with:
-          go-version: '${{ env.GO_VERSION }}'
-      - name: Install golangci-lint
-        run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
+          name: deploy-meta
+          path: deploy-meta.json
+          retention-days: 3
 
-      - name: golangci-lint
-        run: golangci-lint run ./...
-
-  verify:
-    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
-    runs-on: ubuntu-22.04
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      - name: Preflight
-        run: |
-          if [ -f scripts/preflight.sh ]; then
-            bash scripts/preflight.sh
-          elif [ -f Makefile ] && grep -q '^preflight:' Makefile; then
-            make preflight
-          else
-            echo "WARN: No preflight script found — add scripts/preflight.sh"
-          fi
-
-      - name: Check Conventional Commits
-        run: |
-          git log origin/main..HEAD --oneline | while read -r line; do
-            if ! echo "$line" | grep -qE "^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: "; then
-              echo "FAIL: Non-conventional commit: $line"
-              exit 1
-            fi
-          done
-          echo "PASS: All commits follow Conventional Commits"
-
-      - name: Check no AI agent attribution
-        run: |
-          if git log origin/main..HEAD --format="%B" | grep -qiE '^co[- ]authored[- ]by:'; then
-            echo "FAIL: Co-authored-by: footer found — blocked by CONVENTIONS.md"
-            exit 1
-          fi
-          echo "PASS: No AI agent attribution"
-
-  semantic-release:
+  release:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: [ci, verify]
+    needs: [build]
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     permissions:
@@ -120,19 +143,3 @@ jobs:
         run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: [ci, verify, semantic-release]
-    runs-on: ubuntu-22.04
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Deploy to BigBase
-        uses: danielvm-git/.github/actions/bigbase-deploy@main
-        with:
-          site_id: ${{ secrets.BIGBASE_SITE_ID }}
-          app_type: ${{ env.APP_TYPE }}
-          site_url: ${{ env.SITE_URL }}
-          deploy_token: ${{ secrets.BIGBASE_DEPLOY_TOKEN }}
