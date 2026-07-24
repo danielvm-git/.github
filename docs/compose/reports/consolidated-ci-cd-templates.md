@@ -1,12 +1,15 @@
 ---
 feature: Consolidated CI/CD Workflow Templates
-status: delivered
+status: superseded
+superseded_by: workflow-templates/CHANGELOG.md#300--2026-07-24
 specs: []
 plans:
   - .mimocode/plans/1783798816295-mighty-cactus.md
 branch: feat/consolidated-ci-cd-templates
 commits: pending
 ---
+
+> **Superseded (2026-07-24):** The single-file `ci-cd-*.yml` consolidation described below was reversed in template **3.0.0**. Current architecture uses **test-build-release + deploy pairs** — see `workflow-templates/CHANGELOG.md` and `docs/how-to/migrate-ci-cd/migration-plan.md`.
 
 # Consolidated CI/CD Workflow Templates — Final Report
 
