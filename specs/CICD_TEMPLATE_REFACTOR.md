@@ -1,5 +1,7 @@
 # CI/CD Template Refactor
 
+> **Status (2026-07-24):** Implemented via checklist-aligned 3.0.0 template split (`test-build-release-*` + `deploy-*` pairs). The **solo-dev CI/CD audit checklist** is the Definition of Done and outranks this document. The "Explicitly rejected" section below is **void** — checklist §1 requires separate deploy workflows.
+
 Reconciled gap list from two independent audits of `workflow-templates/ci-cd-*.yml` and
 `actions/bigbase-deploy` against the bigpowers solo-dev CI/CD checklist. Bypasses full
 epic/story tooling (`specs/release-plan.yaml` + `specs/epics/` don't exist in this repo yet) —

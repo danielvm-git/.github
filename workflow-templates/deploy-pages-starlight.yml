@@ -43,7 +43,6 @@ jobs:
             echo "::error::pages-site artifact missing or empty"
             exit 1
           fi
-          echo "pages-site artifact verified ($(find site -type f | wc -l | tr -d ' ') files)"
 
       - uses: actions/upload-pages-artifact@v5
         with:
@@ -64,24 +63,13 @@ jobs:
         uses: actions/deploy-pages@v5
         continue-on-error: true
 
-      - name: Wait before final retry
-        if: steps.deploy_attempt_1.outcome == 'failure' && steps.deploy_attempt_2.outcome == 'failure'
-        run: sleep 45
-
-      - name: Deploy to GitHub Pages (attempt 3)
-        id: deploy_attempt_3
-        if: steps.deploy_attempt_1.outcome == 'failure' && steps.deploy_attempt_2.outcome == 'failure'
-        uses: actions/deploy-pages@v5
-        continue-on-error: true
-
       - name: Verify deployment succeeded
         id: deployment
         run: |
           if [ "${{ steps.deploy_attempt_1.outcome }}" = "success" ] || \
-             [ "${{ steps.deploy_attempt_2.outcome }}" = "success" ] || \
-             [ "${{ steps.deploy_attempt_3.outcome }}" = "success" ]; then
+             [ "${{ steps.deploy_attempt_2.outcome }}" = "success" ]; then
             echo "GitHub Pages deployment succeeded"
           else
-            echo "::error::GitHub Pages deployment failed after 3 attempts"
+            echo "::error::GitHub Pages deployment failed after 2 attempts"
             exit 1
           fi

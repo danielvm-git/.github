@@ -1,6 +1,6 @@
 {
-  "name": "Deploy (Static Site)",
-  "description": "Deploy a static site to BigBase after Test Build Release succeeds. Requires deploy-meta artifact.",
-  "iconName": "globe",
-  "categories": ["Deployment", "Pages"]
+  "name": "Deploy (Static / BigBase)",
+  "description": "BigBase deploy triggered by Test Build Release — copy as deploy.yml",
+  "iconName": "rocket",
+  "categories": ["Deployment", "JavaScript"]
 }

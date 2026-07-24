@@ -1,6 +1,6 @@
 {
   "name": "Test Build Release (Python)",
-  "description": "Test, lint, typecheck, build, verify commits, and release a Python project with uv. Pair with Deploy (Python).",
-  "iconName": "python",
+  "description": "Checklist pipeline: test, build, release for Python (uv) — pair with deploy-python.yml",
+  "iconName": "code",
   "categories": ["Continuous integration", "Python"]
 }

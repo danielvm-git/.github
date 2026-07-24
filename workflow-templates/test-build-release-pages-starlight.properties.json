@@ -1,6 +1,6 @@
 {
   "name": "Test Build Release (Starlight)",
-  "description": "Checklist pipeline: test, build, release for Astro Starlight docs — pair with deploy-pages-starlight.yml",
+  "description": "Docs pipeline for Astro Starlight — pair with deploy-pages-starlight.yml",
   "iconName": "book",
-  "categories": ["Continuous integration", "Pages", "Documentation", "Astro"]
+  "categories": ["Continuous integration", "JavaScript"]
 }

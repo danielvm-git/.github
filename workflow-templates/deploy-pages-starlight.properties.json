@@ -1,6 +1,6 @@
 {
-  "name": "Deploy Docs (Starlight)",
+  "name": "Deploy Docs (Starlight / GitHub Pages)",
   "description": "GitHub Pages deploy triggered by Test Build Release — copy as deploy.yml",
-  "iconName": "book",
-  "categories": ["Pages", "Documentation", "Astro"]
+  "iconName": "rocket",
+  "categories": ["Deployment", "JavaScript"]
 }

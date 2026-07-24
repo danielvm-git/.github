@@ -1,6 +1,6 @@
 {
-  "name": "Test Build Release (Static Site)",
-  "description": "Test, lint, build, verify commits, and release a static site (Astro, Vue SPA, React, plain HTML). Pair with Deploy (Static Site).",
+  "name": "Test Build Release (Static)",
+  "description": "Checklist pipeline for static sites — pair with deploy-static.yml",
   "iconName": "globe",
-  "categories": ["Continuous integration", "Pages"]
+  "categories": ["Continuous integration", "JavaScript"]
 }
