@@ -1,64 +1,53 @@
-name: Deploy Docs Site to GitHub Pages
-# version: 1.0.0 — see workflow-templates/CHANGELOG.md
-# Generalized from bigpowers/.github/workflows/docs-site.yml (Astro Starlight).
-# Use this for Node/Astro-based docs sites. For Python/MkDocs docs sites, use
-# deploy-pages-mkdocs.yml (lifted from grimoire/docs.yaml) instead.
-
-concurrency:
-  group: pages
-  cancel-in-progress: true
+name: Deploy Docs (Starlight)
+# version: 3.0.0 — see workflow-templates/CHANGELOG.md
+# Copy to .github/workflows/deploy.yml; triggered by test-build-release.yml only
 
 on:
-  push:
-    branches: [main, develop, master]
-    paths:
-      - "docs/**"
-      - "website/**"
-      - "README.md"
-      - ".github/workflows/deploy-pages-starlight.yml"
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["Test Build Release"]
+    types: [completed]
 
 permissions:
   contents: read
+  actions: read
   pages: write
   id-token: write
 
+concurrency:
+  group: deploy-github-pages
+  cancel-in-progress: false
+
 jobs:
-  build:
+  deploy:
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-22.04
     timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-node@v6
+      - name: Download pages-site artifact
+        uses: actions/download-artifact@v8
         with:
-          node-version: "22"
-          cache: npm
-          cache-dependency-path: website/package-lock.json
+          name: pages-site
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+          repository: ${{ github.event.workflow_run.repository.full_name }}
+          path: site
 
-      - name: Build docs site
+      - name: Verify pages-site artifact
         run: |
-          cd website
-          npm ci
-          npm run build
-
-      - uses: actions/configure-pages@v6
-        with:
-          enablement: true
+          if [ ! -d site ] || [ -z "$(find site -type f | head -1)" ]; then
+            echo "::error::pages-site artifact missing or empty"
+            exit 1
+          fi
 
       - uses: actions/upload-pages-artifact@v5
         with:
-          path: website/dist
+          path: site
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-22.04
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy_attempt_1.outputs.page_url || steps.deploy_attempt_2.outputs.page_url || steps.deploy_attempt_3.outputs.page_url }}
-    steps:
-      # GitHub Pages deploys are occasionally flaky — bigpowers found 3
-      # attempts with a 45s backoff reliably clears transient failures.
       - name: Deploy to GitHub Pages (attempt 1)
         id: deploy_attempt_1
         uses: actions/deploy-pages@v5
@@ -74,23 +63,13 @@ jobs:
         uses: actions/deploy-pages@v5
         continue-on-error: true
 
-      - name: Wait before final retry
-        if: steps.deploy_attempt_1.outcome == 'failure' && steps.deploy_attempt_2.outcome == 'failure'
-        run: sleep 45
-
-      - name: Deploy to GitHub Pages (attempt 3)
-        id: deploy_attempt_3
-        if: steps.deploy_attempt_1.outcome == 'failure' && steps.deploy_attempt_2.outcome == 'failure'
-        uses: actions/deploy-pages@v5
-        continue-on-error: true
-
       - name: Verify deployment succeeded
+        id: deployment
         run: |
           if [ "${{ steps.deploy_attempt_1.outcome }}" = "success" ] || \
-             [ "${{ steps.deploy_attempt_2.outcome }}" = "success" ] || \
-             [ "${{ steps.deploy_attempt_3.outcome }}" = "success" ]; then
+             [ "${{ steps.deploy_attempt_2.outcome }}" = "success" ]; then
             echo "GitHub Pages deployment succeeded"
           else
-            echo "::error::GitHub Pages deployment failed after 3 attempts"
+            echo "::error::GitHub Pages deployment failed after 2 attempts"
             exit 1
           fi

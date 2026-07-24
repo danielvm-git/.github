@@ -1,0 +1,6 @@
+{
+  "name": "Deploy (Monorepo / BigBase)",
+  "description": "BigBase deploy triggered by Test Build Release — copy as deploy.yml",
+  "iconName": "rocket",
+  "categories": ["Deployment"]
+}

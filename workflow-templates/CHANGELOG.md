@@ -1,5 +1,57 @@
 # Workflow Template Changelog
 
+## 3.0.0 — 2026-07-24
+
+### Split — 9 consolidated templates → test-build-release + deploy pairs
+
+Reverses the single-file `ci-cd-*.yml` consolidation from 2.0.0. Each stack now ships as two templates:
+
+```
+test-build-release-<stack>.yml  →  .github/workflows/test-build-release.yml
+deploy-<stack>.yml              →  .github/workflows/deploy.yml
+```
+
+Deploy runs via `workflow_run` after Test Build Release succeeds on `main`. Deploy concurrency uses `cancel-in-progress: false` so in-flight deploys are never killed by a newer push.
+
+### Added
+- `test-build-release-{node,python,go,static,monorepo,swift,pages-mkdocs,pages-starlight}.yml` — test, verify, semantic-release, deploy-meta artifact upload
+- `deploy-{node,python,go,static,pages-mkdocs,pages-starlight}.yml` — workflow_run handoff, artifact verify, BigBase or GitHub Pages deploy
+
+### Removed (from catalog over migration window)
+- `ci-cd-*.yml` — replaced by the test-build-release + deploy pair per stack
+- `ci-*.yml` (standalone CI-only templates) — absorbed into test-build-release templates
+
+### Pipeline pattern
+```
+test-build-release.yml:  test → verify → semantic-release → upload deploy-meta
+deploy.yml:              workflow_run → download artifact → deploy (cancel-in-progress: false)
+```
+
+### Checklist alignment
+Templates now satisfy the bigpowers solo-dev CI/CD checklist:
+- Deploy shielded from cancellation (separate workflow, `cancel-in-progress: false`)
+- Artifact handoff via `deploy-meta` JSON (SHA + app_type) consumed by `bigbase-deploy`
+- `bigbase-deploy` pinned to `@v1`, not `@main`
+- `environment: production` on BigBase deploy jobs
+
+### Naming convention
+- `test-build-release-<stack>.yml` → copy as `test-build-release.yml`
+- `deploy-<stack>.yml` → copy as `deploy.yml`
+- `codeql.yml` → optional security scanning (unchanged)
+
+### Security baseline
+- **Test Build Release:** `permissions: contents: read`, `timeout-minutes`, `concurrency` with `cancel-in-progress: true`, pinned `ubuntu-22.04` (except Swift templates using `macos-14`)
+- **Deploy:** `permissions: contents: read` (+ `pages: write`, `id-token: write` for GitHub Pages), `concurrency` with `cancel-in-progress: false`, pinned `ubuntu-22.04`
+
+### Correction
+2.0.0 claimed "Conditional BigBase deploy (skips if no secrets configured)" — no such condition exists. Deploy runs when Test Build Release succeeds; missing secrets fail at the `bigbase-deploy` validation step.
+
+### Companion files
+- `.properties.json` per template — GitHub Actions tab picker
+- `scripts/audit-template-versions.sh` — portfolio-wide version check
+- `scripts/validate-templates.sh` — yamllint + schema + concurrency policy validation
+- `workflows/test-build-release.yml` — dogfood validation workflow for this repo
+
 ## 2.0.0 — 2026-07-11
 
 ### Consolidated — 16 templates → 9 templates

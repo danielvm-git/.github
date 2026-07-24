@@ -1,6 +1,6 @@
 {
-  "name": "Deploy Docs (MkDocs)",
-  "description": "Build and deploy Python/MkDocs documentation to GitHub Pages",
-  "iconName": "book",
-  "categories": ["Pages", "Documentation", "Python"]
+  "name": "Deploy Docs (MkDocs / GitHub Pages)",
+  "description": "GitHub Pages deploy triggered by Test Build Release — copy as deploy.yml",
+  "iconName": "rocket",
+  "categories": ["Deployment", "Python"]
 }

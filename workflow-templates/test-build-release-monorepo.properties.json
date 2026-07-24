@@ -1,0 +1,6 @@
+{
+  "name": "Test Build Release (Monorepo)",
+  "description": "Multi-language checklist pipeline — pair with deploy-monorepo.yml",
+  "iconName": "repo",
+  "categories": ["Continuous integration"]
+}

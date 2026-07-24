@@ -1,0 +1,31 @@
+name: Test Build Release
+# Dogfood — validates workflow templates and repo preflight on every change.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pipeline-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Validate workflow templates
+        run: bash scripts/validate-templates.sh
+
+      - name: Preflight
+        run: bash scripts/preflight.sh

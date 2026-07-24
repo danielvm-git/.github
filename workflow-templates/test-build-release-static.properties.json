@@ -1,0 +1,6 @@
+{
+  "name": "Test Build Release (Static)",
+  "description": "Checklist pipeline for static sites — pair with deploy-static.yml",
+  "iconName": "globe",
+  "categories": ["Continuous integration", "JavaScript"]
+}

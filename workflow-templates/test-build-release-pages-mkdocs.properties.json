@@ -1,0 +1,6 @@
+{
+  "name": "Test Build Release (MkDocs)",
+  "description": "Docs pipeline: test, build, release for MkDocs — pair with deploy-pages-mkdocs.yml",
+  "iconName": "book",
+  "categories": ["Continuous integration", "Python"]
+}

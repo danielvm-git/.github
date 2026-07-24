@@ -23,9 +23,13 @@ inputs:
     required: false
     default: 'https://bigbase.click'
   branch:
-    description: 'Branch to deploy'
+    description: 'Branch to deploy (fallback when ref is empty)'
     required: false
     default: 'main'
+  ref:
+    description: 'Commit SHA or tag to deploy (preferred over branch HEAD)'
+    required: false
+    default: ''
   passthrough_paths:
     description: 'JSON array of URL paths to pass through to the origin server (e.g. ["/api/version","/mcp"])'
     required: false
@@ -55,11 +59,16 @@ runs:
     - name: Trigger BigBase deploy
       shell: bash
       run: |
+        REF="${{ inputs.ref }}"
+        if [ -z "$REF" ]; then
+          REF="${{ inputs.branch }}"
+        fi
         PAYLOAD=$(jq -n \
           --arg branch "${{ inputs.branch }}" \
+          --arg ref "$REF" \
           --arg app_type "${{ inputs.app_type }}" \
           --argjson passthrough "${{ inputs.passthrough_paths }}" \
-          '{branch: $branch, app_type: $app_type, passthrough_paths: $passthrough}')
+          '{branch: $branch, ref: $ref, app_type: $app_type, passthrough_paths: $passthrough}')
         curl -sfX POST "${{ inputs.bigbase_server }}/api/sites/${{ inputs.site_id }}/deploy" \
           -H "Authorization: Bearer ${{ inputs.deploy_token }}" \
           -H "Content-Type: application/json" \

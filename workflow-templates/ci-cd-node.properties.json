@@ -1,6 +1,0 @@
-{
-  "name": "CI/CD (Node.js)",
-  "description": "Full pipeline: lint, typecheck, test, build, verify, and deploy a Node.js project to BigBase",
-  "iconName": "node",
-  "categories": ["Continuous integration", "Deployment", "JavaScript", "TypeScript"]
-}

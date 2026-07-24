@@ -14,11 +14,17 @@ name: security-baseline
 # permissions:
 #   contents: read
 #
-# 2) Top-level, one per workflow (CI: cancel; deploy: queue, don't cancel):
+# 2) Top-level, one per workflow:
 #
+# Test Build Release / CI pipelines — cancel superseded runs:
 # concurrency:
-#   group: ci-${{ github.workflow }}-${{ github.ref }}
-#   cancel-in-progress: true   # false for deploy workflows
+#   group: pipeline-${{ github.workflow }}-${{ github.ref }}
+#   cancel-in-progress: true
+#
+# Deploy workflows (workflow_run handoff) — never cancel in-flight deploys:
+# concurrency:
+#   group: deploy-production   # or deploy-github-pages
+#   cancel-in-progress: false  # REQUIRED — a second push must queue, not kill deploy
 #
 # 3) Every job:
 #

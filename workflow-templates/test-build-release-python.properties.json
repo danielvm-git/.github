@@ -1,0 +1,6 @@
+{
+  "name": "Test Build Release (Python)",
+  "description": "Checklist pipeline: test, build, release for Python (uv) — pair with deploy-python.yml",
+  "iconName": "code",
+  "categories": ["Continuous integration", "Python"]
+}

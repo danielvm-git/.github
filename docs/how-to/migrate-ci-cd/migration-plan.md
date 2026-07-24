@@ -1,143 +1,108 @@
-# CI/CD Migration Plan — Consolidated Templates
+# CI/CD Migration Plan — Split Templates (3.0.0)
 
-> **Date:** 2026-07-11
-> **PR:** https://github.com/danielvm-git/.github/pull/11
+> **Date:** 2026-07-24
 > **Status:** Ready for per-repo migration
+> **Supersedes:** [2026-07-11 consolidated migration plan](./migration-plan-v2-consolidated.md) (single `ci-cd-*.yml` per stack)
 
 ## Background
 
-The `.github` template repo has been redesigned from 16 separate workflow templates to 9 unified CI/CD pipelines. Every `ci-cd-*.yml` template now follows a 4-stage pipeline pattern:
+The `.github` template repo has been redesigned from 9 unified `ci-cd-*.yml` pipelines to **two-file pairs** per stack. This aligns with the bigpowers solo-dev CI/CD checklist: deploy runs in a separate workflow with `cancel-in-progress: false`, and CI passes a pinned commit SHA to deploy via artifact handoff.
 
 ```
-ci → verify → semantic-release → deploy
+test-build-release.yml:  test → verify → semantic-release → upload deploy-meta
+deploy.yml:              workflow_run → download artifact → deploy
 ```
 
-- **ci**: Language-specific lint, typecheck, test, build + artifact upload
-- **verify**: Preflight + conventional commits + no AI attribution (absorbed from `release-branch.yml`)
-- **semantic-release**: Version bump, changelog, GitHub release (main branch only)
-- **deploy**: Conditional BigBase deploy via `bigbase-deploy` action
+## Two-file copy-as guidance
 
-## Migration Scope
+Every stack ships two templates. Copy each to a **fixed filename** in the consumer repo — the deploy template hard-codes `workflows: ["Test Build Release"]`, so the upstream workflow name must match.
 
-### Repos to migrate (10)
+### Step 1: Pick your stack pair
 
-| # | Repo | Stack | Current Workflows | Deploy Target | New Template |
-|---|------|-------|-------------------|---------------|--------------|
-| 1 | `bigbase` | Go + Node.js | ci.yml, codeql.yml, pr-review.yaml, release-deploy.yml | BigBase + SSH | `ci-cd-go.yml` |
-| 2 | `bigpowers` | Node.js + Python + docs | agent-locks.yml, agentics-maintenance.yml, docs-site.yml, publish.yml, sync-*.yml | GitHub Pages | `ci-cd-node.yml` + `ci-cd-pages-starlight.yml` |
-| 3 | `grimoire` | Python + docs | ci.yml, codeql.yml, deploy.yml, docs.yaml | BigBase + GitHub Pages | `ci-cd-python.yml` + `ci-cd-pages-mkdocs.yml` |
-| 4 | `big-bolao` | Node.js + Python | ci-cd.yml, codeql-javascript.yml, codeql-python.yml | BigBase | `ci-cd-node.yml` or `ci-cd-monorepo.yml` |
-| 5 | `big-counter` | Python | ci.yaml, codeql.yml, release.yaml | None | `ci-cd-python.yml` |
-| 6 | `astrobiologia` | Node.js + docs | ci.yml, deploy-bigbase.yml | BigBase | `ci-cd-static.yml` |
-| 7 | `big-library` | Node.js + Python | ci-cd.yml, codeql.yml | BigBase | `ci-cd-monorepo.yml` |
-| 8 | `big-olive-books` | Node.js | ci-cd.yml | BigBase | `ci-cd-static.yml` |
-| 9 | `big-token-saver` | Node.js + Rust | ci.yml, release.yml | None | `ci-cd-monorepo.yml` |
-| 10 | `big-quiqui` | Node.js | lint_and_test.yml, release.yml | None | `ci-cd-node.yml` |
+| Stack | Copy from `.github` repo | Save as in consumer repo |
+|-------|--------------------------|--------------------------|
+| Node.js (library/API) | `test-build-release-node.yml` + `deploy-node.yml` | `test-build-release.yml` + `deploy.yml` |
+| Python | `test-build-release-python.yml` + `deploy-python.yml` | `test-build-release.yml` + `deploy.yml` |
+| Go | `test-build-release-go.yml` + `deploy-go.yml` | `test-build-release.yml` + `deploy.yml` |
+| Static site | `test-build-release-static.yml` + `deploy-static.yml` | `test-build-release.yml` + `deploy.yml` |
+| Swift/macOS | `test-build-release-swift.yml` + *(no deploy yet)* | `test-build-release.yml` |
+| Multi-language | `test-build-release-monorepo.yml` + `deploy-monorepo.yml` | `test-build-release.yml` + `deploy.yml` |
+| MkDocs docs | `test-build-release-pages-mkdocs.yml` + `deploy-pages-mkdocs.yml` | `test-build-release.yml` + `deploy.yml` |
+| Starlight docs | `test-build-release-pages-starlight.yml` + `deploy-pages-starlight.yml` | `test-build-release.yml` + `deploy.yml` |
 
-### Repos NOT migrating (special cases)
+Optional: add `codeql.yml` unchanged for security scanning.
 
-| Repo | Reason |
-|------|--------|
-| `bigbase` (deploy) | `release-deploy.yml` uses SSH to Contabo VPS — keep as-is until BigBase self-deploys |
-| `bigpowers` (agent workflows) | Agent-generated workflows — don't touch |
-
-## Migration Steps (per repo)
-
-### Step 1: Create feature branch
+### Step 2: Copy both files
 
 ```bash
-cd ~/Developer/<repo>
-git checkout -b refactor/consolidate-ci-cd
+STACK=node   # change to match your stack: python, go, static, monorepo, pages-mkdocs, pages-starlight
+
+cp ~/Developer/.github/workflow-templates/test-build-release-${STACK}.yml \
+   .github/workflows/test-build-release.yml
+
+cp ~/Developer/.github/workflow-templates/deploy-${STACK}.yml \
+   .github/workflows/deploy.yml
 ```
 
-### Step 2: Copy new template
+For Swift-only repos (no deploy yet):
 
 ```bash
-# From the .github repo:
-cp ~/Developer/.github/workflow-templates/ci-cd-<language>.yml .github/workflows/ci-cd.yml
+cp ~/Developer/.github/workflow-templates/test-build-release-swift.yml \
+   .github/workflows/test-build-release.yml
 ```
 
 ### Step 3: Configure
 
-Edit `.github/workflows/ci-cd.yml`:
+Edit `.github/workflows/test-build-release.yml`:
 - Set `APP_TYPE` (static, python, node, go)
-- Set `SITE_URL` (https://<slug>.bigbase.click)
+- Set `SITE_URL` (https://\<slug\>.bigbase.click)
 - Adjust language-specific steps if needed
+
+Edit `.github/workflows/deploy.yml`:
+- Confirm `SITE_URL` matches
+- Ensure repo secrets: `BIGBASE_SITE_ID`, `BIGBASE_DEPLOY_TOKEN` (BigBase stacks only)
+
+Do **not** rename the workflow `name:` field — deploy listens for `"Test Build Release"`.
 
 ### Step 4: Remove old workflows
 
 ```bash
-# Remove old CI workflow
-rm .github/workflows/ci.yml  # or ci.yaml, ci-cd.yml (old)
+# Remove consolidated or legacy CI/CD
+rm -f .github/workflows/ci-cd.yml .github/workflows/ci.yml .github/workflows/ci.yaml
 
-# Remove old release-branch workflow (if exists)
-rm .github/workflows/release-branch.yml  # or release.yaml, release.yml
+# Remove old standalone deploy (if exists)
+rm -f .github/workflows/deploy-bigbase.yml .github/workflows/deploy.yml.bak
 
-# Remove old deploy workflow (if exists)
-rm .github/workflows/deploy-bigbase.yml  # or deploy.yml
-
-# Keep CodeQL if desired (it's optional)
+# Keep CodeQL if desired
 # rm .github/workflows/codeql.yml
 ```
 
 ### Step 5: Verify
 
 ```bash
-# Validate YAML
-yamllint .github/workflows/ci-cd.yml
-
-# Push and check CI passes
-git add -A && git commit -m "refactor: consolidate CI/CD into single pipeline"
-git push -u origin refactor/consolidate-ci-cd
+yamllint .github/workflows/test-build-release.yml .github/workflows/deploy.yml
+git add -A && git commit -m "refactor: split CI/CD into test-build-release + deploy pair"
+git push -u origin refactor/split-ci-cd
 ```
 
 ### Step 6: Open PR
 
 ```bash
-gh pr create --title "refactor: consolidate CI/CD into single pipeline" --body "..."
+gh pr create --title "refactor: split CI/CD into test-build-release + deploy pair" --body "..."
 ```
 
-## Naming Convention
+## Naming convention
 
-All workflow `name:` fields follow `Function (Scope)` pattern:
+| File | YAML `name:` | Actions tab label |
+|------|--------------|-------------------|
+| `test-build-release.yml` | `Test Build Release` | Test Build Release |
+| `deploy.yml` | `Deploy` or `Deploy Docs (...)` | Deploy |
 
-| Type | Pattern | Examples |
-|------|---------|----------|
-| CI | `CI` | `CI` — build/test only |
-| CI/CD | `CI/CD` | `CI/CD` — build/test + deploy |
-| Deploy | `Deploy (Target)` | `Deploy (BigBase)`, `Deploy (GitHub Pages)` |
-| Docs | `Deploy Docs` | `Deploy Docs` — documentation deployment |
-| CodeQL | `CodeQL` or `CodeQL (Language)` | `CodeQL`, `CodeQL (JavaScript)`, `CodeQL (Python)` |
-| Release | `Release` or `Release (Target)` | `Release`, `Release (BigBase)` |
-
-YAML `name:` field: short, scannable in Actions tab.
-Properties `name`: descriptive for GitHub workflow picker (e.g. `CI/CD (Node.js)`).
-
-## Template Selection Guide
-
-| Stack | Template | Notes |
-|-------|----------|-------|
-| Node.js (static site) | `ci-cd-static.yml` | For Astro, Vue SPA, React SPA |
-| Node.js (library/API) | `ci-cd-node.yml` | For npm packages, servers |
-| Python | `ci-cd-python.yml` | Default uv, pip as alternative |
-| Go | `ci-cd-go.yml` | Includes golangci-lint |
-| Swift | `ci-cd-swift.yml` | macOS runner, no deploy yet |
-| Multi-language | `ci-cd-monorepo.yml` | Auto-detects Node, Python, Rust, Go, Shell |
-| MkDocs docs | `ci-cd-pages-mkdocs.yml` | GitHub Pages deploy |
-| Starlight docs | `ci-cd-pages-starlight.yml` | GitHub Pages deploy |
-| Security scanning | `codeql.yml` | Optional, set `LANGUAGES` env var |
+Properties `name` in `.properties.json` is descriptive for the GitHub workflow picker (e.g. `Test Build Release (Node.js)`).
 
 ## Timeline
 
-- [ ] PR #11 merged in `.github` repo
-- [ ] bigbase migrated
-- [ ] big-library migrated (reference implementation — already uses single pipeline)
-- [ ] big-olive-books migrated
-- [ ] astrobiologia migrated
-- [ ] big-bolao migrated
-- [ ] big-counter migrated
-- [ ] grimoire migrated
-- [ ] big-token-saver migrated
-- [ ] big-quiqui migrated
-- [ ] bigpowers migrated (agent workflows stay as-is)
-- [ ] Old templates deleted from `.github/workflow-templates/`
+- [ ] 3.0.0 templates merged in `.github` repo
+- [ ] Reference repo migrated (big-library or big-olive-books)
+- [ ] Remaining portfolio repos migrated per stack table above
+- [ ] Legacy `ci-cd-*.yml` templates removed from catalog
