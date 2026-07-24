@@ -32,14 +32,6 @@ jobs:
       - name: Test
         run: swift test -v --parallel
 
-      # --- Xcode app target (use instead of the two steps above) ---
-      # - name: Build
-      #   run: |
-      #     xcodebuild build \
-      #       -project YourApp.xcodeproj \
-      #       -scheme YourApp \
-      #       -destination 'platform=macOS'
-
   verify:
     if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-22.04
