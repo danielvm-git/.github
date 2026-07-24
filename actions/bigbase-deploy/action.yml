@@ -58,21 +58,65 @@ runs:
 
     - name: Trigger BigBase deploy
       shell: bash
+      env:
+        DEPLOY_TOKEN: ${{ inputs.deploy_token }}
+        BIGBASE_SERVER: ${{ inputs.bigbase_server }}
+        SITE_ID: ${{ inputs.site_id }}
+        BRANCH: ${{ inputs.branch }}
+        REF_INPUT: ${{ inputs.ref }}
+        APP_TYPE: ${{ inputs.app_type }}
+        PASSTHROUGH_PATHS: ${{ inputs.passthrough_paths }}
       run: |
-        REF="${{ inputs.ref }}"
+        REF="$REF_INPUT"
         if [ -z "$REF" ]; then
-          REF="${{ inputs.branch }}"
+          REF="$BRANCH"
         fi
         PAYLOAD=$(jq -n \
-          --arg branch "${{ inputs.branch }}" \
+          --arg branch "$BRANCH" \
           --arg ref "$REF" \
-          --arg app_type "${{ inputs.app_type }}" \
-          --argjson passthrough "${{ inputs.passthrough_paths }}" \
+          --arg app_type "$APP_TYPE" \
+          --argjson passthrough "$PASSTHROUGH_PATHS" \
           '{branch: $branch, ref: $ref, app_type: $app_type, passthrough_paths: $passthrough}')
-        curl -sfX POST "${{ inputs.bigbase_server }}/api/sites/${{ inputs.site_id }}/deploy" \
-          -H "Authorization: Bearer ${{ inputs.deploy_token }}" \
+        RESPONSE_FILE=$(mktemp)
+        trap 'rm -f "$RESPONSE_FILE"' EXIT
+        set +e
+        HTTP_CODE=$(curl -sS -o "$RESPONSE_FILE" -w '%{http_code}' \
+          -X POST "${BIGBASE_SERVER}/api/sites/${SITE_ID}/deploy" \
+          -H "Authorization: Bearer ${DEPLOY_TOKEN}" \
           -H "Content-Type: application/json" \
-          -d "$PAYLOAD"
+          -d "$PAYLOAD")
+        CURL_EXIT=$?
+        set -e
+        if [ "$CURL_EXIT" -ne 0 ]; then
+          echo "::error::Deploy request failed (curl exit ${CURL_EXIT})"
+          exit 1
+        fi
+        if [[ "$HTTP_CODE" =~ ^2[0-9][0-9]$ ]]; then
+          echo "Deploy accepted (HTTP ${HTTP_CODE})"
+          if [ -s "$RESPONSE_FILE" ]; then
+            if jq empty "$RESPONSE_FILE" 2>/dev/null; then
+              jq . "$RESPONSE_FILE"
+            else
+              cat "$RESPONSE_FILE"
+            fi
+          fi
+          exit 0
+        fi
+        echo "::error::Deploy API returned HTTP ${HTTP_CODE}"
+        if [ -s "$RESPONSE_FILE" ]; then
+          # Surface JSON error body for DX. Token is ::add-mask::'d; also strip
+          # from body in case the API echoes Authorization material.
+          BODY=$(cat "$RESPONSE_FILE")
+          BODY="${BODY//$DEPLOY_TOKEN/***REDACTED***}"
+          if printf '%s' "$BODY" | jq empty 2>/dev/null; then
+            printf '%s\n' "$BODY" | jq .
+          else
+            printf '%s\n' "$BODY"
+          fi
+        else
+          echo "(empty response body)"
+        fi
+        exit 1
 
     - name: Health check
       shell: bash
