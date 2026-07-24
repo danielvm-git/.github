@@ -1,0 +1,104 @@
+name: Test Build Release
+# version: 3.0.0 — see workflow-templates/CHANGELOG.md
+# Copy to .github/workflows/test-build-release.yml and pair with deploy-pages-starlight.yml → deploy.yml
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pipeline-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+
+      - name: Preflight
+        run: |
+          if [ -f scripts/preflight.sh ]; then
+            bash scripts/preflight.sh
+          else
+            echo "WARN: No preflight script found"
+          fi
+
+      - name: Check Conventional Commits
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+        run: |
+          git log origin/main..HEAD --oneline | while read -r line; do
+            if ! echo "$line" | grep -qE "^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: "; then
+              echo "FAIL: Non-conventional commit: $line"
+              exit 1
+            fi
+          done
+          echo "PASS: All commits follow Conventional Commits"
+
+      - name: Check no AI agent attribution
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+        run: |
+          if git log origin/main..HEAD --format="%B" | grep -qiE '^co[- ]authored[- ]by:'; then
+            echo "FAIL: Co-authored-by: footer found — blocked by CONVENTIONS.md"
+            exit 1
+          fi
+          echo "PASS: No AI agent attribution"
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: website
+
+      - name: Validate docs build
+        run: npm run build
+        working-directory: website
+
+  build:
+    needs: [test]
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: website
+
+      - name: Build docs
+        run: npm run build
+        working-directory: website
+
+      - name: Upload pages-site artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: pages-site
+          path: website/dist/
+          retention-days: 3
+
+  release:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [build]
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - name: No version bump for docs
+        run: echo "no version bump for docs"

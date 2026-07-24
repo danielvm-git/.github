@@ -1,6 +1,0 @@
-{
-  "name": "CI/CD (Docs — Starlight)",
-  "description": "Full pipeline: build, verify, and deploy Astro Starlight documentation to GitHub Pages",
-  "iconName": "book",
-  "categories": ["Continuous integration", "Pages", "Documentation", "Astro"]
-}
