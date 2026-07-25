@@ -1,5 +1,12 @@
 # Workflow Template Changelog
 
+## 3.1.2 — 2026-07-25
+
+### Automated drift detection
+
+- **Scheduled drift audit:** added `.github/workflows/template-drift-audit.yml` — runs `scripts/audit-template-versions.sh` every Monday 09:00 UTC and opens a `template-drift` labelled issue if any portfolio repo is out of date. The issue auto-closes when drift is resolved. Also supports `workflow_dispatch`.
+- `scripts/audit-template-versions.sh` already existed as a standalone check; this wraps it in CI.
+
 ## 3.1.1 — 2026-07-25
 
 ### PHP catalog + health-check resilience fix
