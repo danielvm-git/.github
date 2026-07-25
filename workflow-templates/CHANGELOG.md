@@ -1,5 +1,18 @@
 # Workflow Template Changelog
 
+## 3.0.1 — 2026-07-25
+
+### Checklist gap closure (Phase A)
+
+- **Workflow-visible smoke:** `bigbase-deploy` gains optional `skip_health_check`; BigBase `deploy-{go,node,python,static,monorepo}.yml` set it and run an explicit `Health check` step after deploy
+- **SHA pins:** third-party / first-party actions in `test-build-release-*` and `deploy-*` pinned to commit SHAs with version comments (e.g. `actions/checkout@9c091bb… # v7.0.0`)
+- **golangci-lint:** action pinned to commit of `v6.5.2`; binary version stays `v1.64.8` (never `latest`)
+- **Swift catalog:** added `test-build-release-swift.yml` (+ `.properties.json`); removed leftover `ci-swift.yml` / `ci-cd-swift.yml` (and properties)
+- **Docs:** scrubbed `bigbase-deploy@main` → `@v1`; CLI/library `deploy.yml` N/A documented in migration plan; contract documents `skip_health_check`
+
+### Note after merge
+Retag `actions/bigbase-deploy` `v1` (or bump pin SHAs in `deploy-*.yml`) so consumers receive `skip_health_check`. Until then, unknown-input warning + double health check is possible if templates pin an older SHA.
+
 ## 3.0.0 — 2026-07-24
 
 ### Split — 9 consolidated templates → test-build-release + deploy pairs

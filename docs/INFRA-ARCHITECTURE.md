@@ -256,7 +256,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Deploy to Staging BigBase
-        uses: danielvm-git/.github/actions/bigbase-deploy@main
+        uses: danielvm-git/.github/actions/bigbase-deploy@v1
         with:
           site_id: ${{ secrets.BIGBASE_SITE_ID }}
           app_type: ${{ env.APP_TYPE }}
@@ -276,7 +276,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Deploy to Production BigBase
-        uses: danielvm-git/.github/actions/bigbase-deploy@main
+        uses: danielvm-git/.github/actions/bigbase-deploy@v1
         with:
           site_id: ${{ secrets.BIGBASE_SITE_ID }}
           app_type: ${{ env.APP_TYPE }}
@@ -327,19 +327,19 @@ env:
 
 jobs:
   ci:
-    uses: danielvm-git/.github/.github/workflows/ci-cd-node-multienv.yml@main
+    uses: danielvm-git/.github/.github/workflows/ci-cd-node-multienv.yml@v1
     secrets: inherit
 
   deploy-staging:
     needs: ci
     if: github.ref == 'refs/heads/develop'
-    uses: danielvm-git/.github/.github/workflows/ci-cd-node-multienv.yml@main
+    uses: danielvm-git/.github/.github/workflows/ci-cd-node-multienv.yml@v1
     secrets: inherit
 
   deploy-production:
     needs: ci
     if: github.ref == 'refs/heads/main'
-    uses: danielvm-git/.github/.github/workflows/ci-cd-node-multienv.yml@main
+    uses: danielvm-git/.github/.github/workflows/ci-cd-node-multienv.yml@v1
     secrets: inherit
 ```
 
@@ -351,7 +351,7 @@ Em vez de copiar templates, use **GitHub Reusable Workflows**:
 # No repo filho (my-web-app):
 jobs:
   ci:
-    uses: danielvm-git/.github/.github/workflows/ci-shared.yml@main
+    uses: danielvm-git/.github/.github/workflows/ci-shared.yml@v1
 ```
 
 ```yaml

@@ -37,17 +37,17 @@ Use `templates/readmes/` for stack-specific sections. If your stack isn't listed
 
 ### 3. CI/CD workflow **(P0)**
 
-- [ ] Workflow lives at `.github/workflows/ci-cd-<language>.yml` (copy from `workflow-templates/`)
-- [ ] Template matches project stack: `ci-cd-node.yml`, `ci-cd-python.yml`, `ci-cd-go.yml`, `ci-cd-static.yml`, `ci-cd-swift.yml`, `ci-cd-monorepo.yml`
-- [ ] For docs sites: `ci-cd-pages-mkdocs.yml` or `ci-cd-pages-starlight.yml`
+- [ ] Workflows live at `.github/workflows/test-build-release.yml` + `deploy.yml` (copy from `workflow-templates/` pair; see [migration plan](migrate-ci-cd/migration-plan.md))
+- [ ] Template stack matches project: `test-build-release-{node,python,go,static,swift,monorepo}.yml` (+ matching `deploy-*.yml` except Swift/CLI)
+- [ ] For docs sites: `test-build-release-pages-{mkdocs,starlight}.yml` + matching `deploy-pages-*.yml`
 - [ ] Actions pinned per `docs/explanation/github-actions-best-practices.md` tier:
-  - **Third-party actions with write/secrets access:** pin to full commit SHA
-  - **First-party `actions/*`:** major-version tags acceptable (`@v4`, `@v5`)
+  - **Third-party actions:** pin to full commit SHA (with version comment)
+  - **First-party `actions/*`:** prefer full commit SHA in org templates; major-version tags acceptable in ad-hoc workflows
   - **Never `@master` or `@main`** for any action
 - [ ] `permissions: contents: read` at workflow level
 - [ ] `timeout-minutes` set on every job
-- [ ] `concurrency` group set at workflow level
-- [ ] `runs-on: ubuntu-22.04` (not `-latest`)
+- [ ] `concurrency` group set at workflow level (`cancel-in-progress: true` on TBR; `false` on deploy)
+- [ ] `runs-on: ubuntu-22.04` (not `-latest`; Swift uses `macos-14`)
 
 Run the CI on your branch and confirm it's green before opening a PR.
 
@@ -56,9 +56,9 @@ Run the CI on your branch and confirm it's green before opening a PR.
 If the project deploys to BigBase:
 
 - [ ] Deploy uses `BIGBASE_DEPLOY_TOKEN` (scoped), never `BIGBASE_EMAIL`/`BIGBASE_PASSWORD`
-- [ ] Deploy step uses `danielvm-git/.github/actions/bigbase-deploy@main` or matches the action's contract
+- [ ] Deploy step uses `danielvm-git/.github/actions/bigbase-deploy@v1` (or a commit SHA of that tag) and matches the action's contract
 - [ ] `BIGBASE_SITE_ID` secret is set in repo settings
-- [ ] Health check verifies the site is live after deploy
+- [ ] Workflow has a distinct `Health check` step after deploy (templates use `skip_health_check: true` on the composite)
 
 See `docs/reference/contracts/bigbase-deploy-contract.md`.
 

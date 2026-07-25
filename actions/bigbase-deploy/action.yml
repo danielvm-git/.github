@@ -45,6 +45,10 @@ inputs:
   health_check_interval_seconds:
     required: false
     default: '10'
+  skip_health_check:
+    description: 'When true, omit the built-in health check (use a workflow-level Health check step instead)'
+    required: false
+    default: 'false'
 
 runs:
   using: 'composite'
@@ -167,6 +171,7 @@ runs:
         exit 1
 
     - name: Health check
+      if: inputs.skip_health_check != 'true'
       shell: bash
       run: |
         ATTEMPTS=${{ inputs.health_check_attempts }}

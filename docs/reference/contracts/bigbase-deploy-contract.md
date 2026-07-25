@@ -36,7 +36,15 @@ The action POSTs to `POST /api/sites/{site_id}/deploy` with JSON:
 
 ## Health check contract
 
-8 attempts, 10s interval, accepts HTTP 200/301/302 as healthy. Failing after 8 attempts fails the job — no silent partial-deploy state. Health check is a **separate step** after the deploy POST.
+8 attempts, 10s interval, accepts HTTP 200/301/302 as healthy. Failing after 8 attempts fails the job — no silent partial-deploy state.
+
+Health check is a **separate step** after the deploy POST. Org `deploy-*.yml` templates set `skip_health_check: true` on the composite and run an explicit workflow-level `Health check` step so the Actions UI shows smoke after deploy succeeds.
+
+| Input | Default | Notes |
+|---|---|---|
+| `skip_health_check` | `false` | When `true`, the composite omits its built-in health check (caller must provide one) |
+| `health_check_attempts` | `8` | Used only when the composite runs the check |
+| `health_check_interval_seconds` | `10` | Used only when the composite runs the check |
 
 ## Rollback
 
