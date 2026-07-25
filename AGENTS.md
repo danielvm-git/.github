@@ -59,7 +59,7 @@ Three layers: **templates** (workflow-templates/, templates/readmes/) consumed b
 - `guard-git` hooks block dangerous git operations
 - `bigpowers` owns methodology; this repo owns CI/CD, deploy, and README templates
 - Branch protection: require PR, require CI pass, no force-push
-- Docs follow Diátaxis structure (tutorials / how-to / reference / explanation)
+- Docs follow Good Docs Project templates (concept / how-to / tutorial / reference / api-reference / troubleshooting / release-notes / style-guide / glossary) with OKF frontmatter
 
 ## Never
 

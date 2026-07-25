@@ -1,0 +1,55 @@
+story_id: e01s04
+title: Add missing Good Docs template types — troubleshooting, release-notes, glossary
+status: in_progress
+bcps: 5
+
+tasks:
+  - id: 1
+    description: "Write troubleshooting/ci-cd-common-failures.md"
+    verify: "grep -q 'type: Troubleshooting' docs/troubleshooting/ci-cd-common-failures.md"
+    risk: P3
+    status: pending
+    allure:
+      severity: normal
+      categories:
+        - "Docs"
+
+  - id: 2
+    description: "Write troubleshooting/deploy-health-check-failures.md"
+    verify: "grep -q 'type: Troubleshooting' docs/troubleshooting/deploy-health-check-failures.md"
+    risk: P3
+    status: pending
+    allure:
+      severity: normal
+      categories:
+        - "Docs"
+
+  - id: 3
+    description: "Write release-notes/2026-07-release.md"
+    verify: "grep -q 'type: Release Notes' docs/release-notes/2026-07-release.md"
+    risk: P3
+    status: pending
+    allure:
+      severity: normal
+      categories:
+        - "Docs"
+
+  - id: 4
+    description: "Write glossary/domain-terms.md"
+    verify: "grep -q 'type: Glossary' docs/glossary/domain-terms.md"
+    risk: P3
+    status: pending
+    allure:
+      severity: normal
+      categories:
+        - "Docs"
+
+  - id: 5
+    description: "Write style-guide/portfolio-writing-standards.md"
+    verify: "grep -q 'type: Style Guide' docs/style-guide/portfolio-writing-standards.md"
+    risk: P3
+    status: pending
+    allure:
+      severity: normal
+      categories:
+        - "Docs"

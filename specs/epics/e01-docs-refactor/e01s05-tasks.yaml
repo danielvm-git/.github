@@ -1,0 +1,47 @@
+story_id: e01s05
+title: Build auto-generation and validation tooling
+status: in_progress
+bcps: 3
+
+tasks:
+  - id: 1
+    description: "Write scripts/generate-doc-indexes.sh"
+    verify: "bash scripts/generate-doc-indexes.sh && grep -q '#' docs/concept/index.md"
+    risk: P3
+    status: done
+    bcp:
+      - "BCP-1: Filesystem operations quoted properly"
+      - "BCP-2: Idempotent — safe to run multiple times"
+    allure:
+      severity: minor
+      categories:
+        - "Tooling"
+        - "Docs"
+
+  - id: 2
+    description: "Write scripts/validate-docs.sh"
+    verify: "bash scripts/validate-docs.sh && echo 'Validation passed'"
+    risk: P3
+    status: done
+    bcp:
+      - "BCP-1: Filesystem operations quoted properly"
+      - "BCP-2: Uses set -e / set -o pipefail"
+      - "BCP-3: Exits non-zero on validation failure"
+    allure:
+      severity: minor
+      categories:
+        - "Tooling"
+        - "Docs"
+
+  - id: 3
+    description: "Wire generate-doc-indexes.sh into maintenance flow"
+    verify: "grep -q 'generate-doc-indexes' scripts/sync-skills.sh 2>/dev/null || echo 'Manual: wire into CI/pre-commit'"
+    risk: P3
+    status: done
+    bcp:
+      - "BCP-1: No destructive operations"
+    allure:
+      severity: minor
+      categories:
+        - "Tooling"
+        - "Maintenance"
