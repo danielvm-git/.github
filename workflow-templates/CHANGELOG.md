@@ -1,5 +1,13 @@
 # Workflow Template Changelog
 
+## 3.1.1 — 2026-07-25
+
+### PHP catalog + health-check resilience fix
+
+- **PHP catalog:** added `test-build-release-php.yml` + `deploy-php.yml` (+ `.properties.json`), the fifth stack pair. `bigbase-deploy`'s `app_type: php` was already implemented server-side (`components/deploy/engine.go`) but had never been exercised through a real CI/CD pipeline — proven green against `bigbase-canary-php` (2026-07-25), the first-ever real deploy of this app_type.
+- **`bigbase-deploy-contract.md`:** `app_type` table now lists `php` and updates `node`'s row from "not yet exercised live" to "exercised live 2026-07-25".
+- **Health check false-negative fix:** the `Health check` step's `curl` call in all `deploy-*.yml` templates (go/node/python/static/monorepo/php) is no longer fatal on a transient connection-level failure (SSL handshake not ready, DNS not yet propagated) — `curl ... || echo "000"` lets the existing retry loop handle it like any other non-2xx/3xx result instead of aborting the whole step under `set -e` on attempt 1. Observed twice in the same session as false `Deploy` job failures (`bigbase-canary-go`, `bigbase-canary-node`) where the actual deployment had succeeded. See `specs/bugs/BUG-2026-07-25-health-check-not-resilient-to-transient-curl-errors.md`.
+
 ## 3.0.1 — 2026-07-25
 
 ### Checklist gap closure (Phase A)
