@@ -100,6 +100,20 @@ gh pr create --title "refactor: split CI/CD into test-build-release + deploy pai
 
 Properties `name` in `.properties.json` is descriptive for the GitHub workflow picker (e.g. `Test Build Release (Node.js)`).
 
+## CLI and library repos (no hosted deploy)
+
+Pure CLI tools, libraries, and other artifacts that publish to registries (npm, PyPI, crates.io, GitHub Releases) **do not need `deploy.yml`**. The terminal job is `release` inside `test-build-release.yml`.
+
+| Checklist item | CLI/library repos |
+|----------------|-------------------|
+| Separate `deploy.yml` | **N/A** — no BigBase or Pages target |
+| Post-deploy smoke | **N/A** — smoke applies to hosted URLs only |
+| `environment: production` on deploy | **N/A** |
+| Rollback via redeploy prior SHA | **N/A** — rollback = republish prior release tag or yank registry version |
+| Artifact reuse | **Required** — `release` must `download-artifact` from `build`; never recompile the host binary |
+
+**Example:** [big-release](https://github.com/danielvm-git/big-release) — `lint → test → build → release`; `build` uploads `bin/<binary>`; `release` downloads it, cross-compiles release assets, runs `big-release release`. No `deploy.yml`.
+
 ## Timeline
 
 - [ ] 3.0.0 templates merged in `.github` repo

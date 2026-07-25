@@ -1,0 +1,6 @@
+{
+  "name": "Test Build Release (Swift)",
+  "description": "Build and test a Swift Package Manager project on macOS, verify commits, and release. No deploy template yet (BigBase Swift app_type pending).",
+  "iconName": "apple",
+  "categories": ["Continuous integration", "Swift"]
+}
