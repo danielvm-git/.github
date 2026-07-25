@@ -1,5 +1,5 @@
 name: Deploy
-# version: 3.0.1 — see workflow-templates/CHANGELOG.md
+# version: 3.1.1 — see workflow-templates/CHANGELOG.md
 # Copy to .github/workflows/deploy.yml; triggered by test-build-release.yml only
 
 on:
@@ -65,7 +65,7 @@ jobs:
           ATTEMPTS=8
           INTERVAL=10
           for i in $(seq 1 "$ATTEMPTS"); do
-            STATUS=$(curl -s -o /dev/null -w '%{http_code}' "${{ env.SITE_URL }}")
+            STATUS=$(curl -s -o /dev/null -w '%{http_code}' "${{ env.SITE_URL }}" || echo "000")
             if [ "$STATUS" = "200" ] || [ "$STATUS" = "301" ] || [ "$STATUS" = "302" ]; then
               echo "✅ Site LIVE (HTTP $STATUS)"
               exit 0

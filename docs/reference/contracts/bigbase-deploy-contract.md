@@ -20,7 +20,7 @@ The action POSTs to `POST /api/sites/{site_id}/deploy` with JSON:
 |---|---|---|
 | `branch` | `inputs.branch` | Kept for API back-compat (default `main`) |
 | `ref` | `inputs.ref`, or `inputs.branch` if `ref` empty | **Pinned commit SHA or tag** — what CI tested |
-| `app_type` | `inputs.app_type` | `static`, `python`, `node`, or `go` |
+| `app_type` | `inputs.app_type` | `static`, `python`, `node`, `go`, or `php` |
 | `passthrough_paths` | `inputs.passthrough_paths` | JSON array of URL paths |
 
 **BigBase API dependency:** the server must honor `ref` and deploy that revision, not floating branch HEAD. If the API ignores `ref` today, treat that as a blocker in the `bigbase` app repo — the template contract and action still send it.
@@ -32,7 +32,8 @@ The action POSTs to `POST /api/sites/{site_id}/deploy` with JSON:
 | `static` | Astro/Vue/plain static builds |
 | `python` | big-bolao |
 | `go` | big-library (MCP server) |
-| `node` | not yet exercised live — confirm behavior before relying on it |
+| `node` | bigbase-canary-node — exercised live 2026-07-25 |
+| `php` | bigbase-canary-php — exercised live 2026-07-25, first-ever real deploy of this app_type. Requires PHP + Composer on the deploy host (`components/deploy/engine.go`); if missing, the deploy fails with a `tool_missing` coded error, not a silent unsupported-type error. |
 
 ## Health check contract
 

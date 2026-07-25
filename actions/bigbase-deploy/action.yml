@@ -177,7 +177,7 @@ runs:
         ATTEMPTS=${{ inputs.health_check_attempts }}
         INTERVAL=${{ inputs.health_check_interval_seconds }}
         for i in $(seq 1 "$ATTEMPTS"); do
-          STATUS=$(curl -s -o /dev/null -w '%{http_code}' "${{ inputs.site_url }}")
+          STATUS=$(curl -s -o /dev/null -w '%{http_code}' "${{ inputs.site_url }}" || echo "000")
           if [ "$STATUS" = "200" ] || [ "$STATUS" = "301" ] || [ "$STATUS" = "302" ]; then
             echo "✅ Site LIVE (HTTP $STATUS)"
             exit 0

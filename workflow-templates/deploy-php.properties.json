@@ -1,0 +1,6 @@
+{
+  "name": "Deploy (PHP)",
+  "description": "Deploy a PHP project to BigBase after Test Build Release succeeds. Requires deploy-meta artifact.",
+  "iconName": "php",
+  "categories": ["Deployment", "PHP"]
+}
