@@ -1,8 +1,20 @@
 name: Deploy
-# version: 3.1.1 — see workflow-templates/CHANGELOG.md
-# Copy to .github/workflows/deploy.yml; triggered by test-build-release.yml only
+# version: 4.0.0 — see workflow-templates/CHANGELOG.md
+# Reusable workflow: call with `uses: danielvm-git/.github/.github/workflows/deploy-go.yml@v2`
+# Or copy to .github/workflows/deploy.yml; triggered by test-build-release.yml only
 
 on:
+  workflow_call:
+    inputs:
+      site_url:
+        description: "Site URL for health check (optional, defaults to placeholder)"
+        required: false
+        type: string
+        default: "https://CHANGE-ME.bigbase.click"
+      ci_run_id:
+        description: "Workflow run ID from the CI workflow (for artifact download)"
+        required: false
+        type: number
   workflow_run:
     workflows: ["Test Build Release"]
     types: [completed]
@@ -16,13 +28,14 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  SITE_URL: "https://CHANGE-ME.bigbase.click"
+  SITE_URL: ${{ inputs.site_url || 'https://CHANGE-ME.bigbase.click' }}
 
 jobs:
   deploy:
     if: >
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.head_branch == 'main'
+      github.event_name == 'workflow_call' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     environment: production
@@ -32,8 +45,8 @@ jobs:
         with:
           name: deploy-meta
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event.workflow_run.id }}
-          repository: ${{ github.event.workflow_run.repository.full_name }}
+          run-id: ${{ inputs.ci_run_id || github.event.workflow_run.id }}
+          repository: ${{ github.event.workflow_run.repository.full_name || github.repository }}
           path: deploy-meta
 
       - name: Verify deploy-meta artifact

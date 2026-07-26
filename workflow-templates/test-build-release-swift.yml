@@ -1,8 +1,11 @@
 name: Test Build Release
-# version: 3.0.1 — see workflow-templates/CHANGELOG.md
-# Copy to .github/workflows/test-build-release.yml (Swift/macOS — no deploy template yet)
+# version: 4.0.0 — see workflow-templates/CHANGELOG.md
+# Reusable workflow: call with `uses: danielvm-git/.github/.github/workflows/test-build-release-swift.yml@v2`
+# Or copy to .github/workflows/test-build-release.yml (Swift/macOS — no deploy template yet)
 
 on:
+  workflow_call:
+    inputs: {}
   push:
     branches: [main]
   pull_request:

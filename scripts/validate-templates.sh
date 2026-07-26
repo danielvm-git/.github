@@ -48,6 +48,8 @@ fi
 echo ""
 echo "--- required fields ---"
 REQUIRED=("name:" "on:" "permissions:" "concurrency:" "timeout-minutes:" "# version:")
+# workflow_call is required for CI/deploy templates but not for CodeQL (security scanning)
+WORKFLOW_CALL_REQUIRED=("test-build-release-" "deploy-")
 
 for f in "$TEMPLATES_DIR"/*.yml; do
   name=$(basename "$f")
@@ -63,6 +65,18 @@ for f in "$TEMPLATES_DIR"/*.yml; do
     if ! grep -q "ubuntu-22.04" "$f"; then
       missing="$missing ubuntu-22.04"
     fi
+  fi
+
+  # workflow_call required for CI/deploy templates, exempt CodeQL
+  needs_workflow_call=false
+  for prefix in "${WORKFLOW_CALL_REQUIRED[@]}"; do
+    if [[ "$name" == ${prefix}* ]]; then
+      needs_workflow_call=true
+      break
+    fi
+  done
+  if $needs_workflow_call && ! grep -q "workflow_call:" "$f"; then
+    missing="$missing workflow_call:"
   fi
 
   if [ -n "$missing" ]; then

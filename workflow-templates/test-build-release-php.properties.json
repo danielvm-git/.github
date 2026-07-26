@@ -1,6 +1,6 @@
 {
   "name": "Test Build Release (PHP)",
-  "description": "Lint (php -l), test (PHPUnit via composer), build, verify commits, and release a PHP project.",
+  "description": "Lint (php -l), test (PHPUnit via composer), build, verify commits, and release a PHP project. Reusable workflow @v2.",
   "iconName": "php",
   "categories": ["Continuous integration", "Deployment", "PHP"]
 }

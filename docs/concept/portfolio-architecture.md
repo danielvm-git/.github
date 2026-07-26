@@ -25,7 +25,7 @@ The system has four layers, each owned by a distinct repo. Lower layers provide 
 | **OKF** | Open Knowledge Framework — the frontmatter and metadata system used in all documentation. |
 | **Good Docs Project** | The template taxonomy (concept, how-to, tutorial, reference, etc.) that shapes doc structure. |
 | **Akita convention** | Naming rule: filenames must be unique enough that `grep -r` across the portfolio returns < 5 results. |
-| **CI/CD template** | Pre-built GitHub Actions workflow files in `workflow-templates/` that repos copy into `.github/workflows/`. |
+| **CI/CD template** | Pre-built GitHub Actions workflow files in `workflow-templates/` — repos call them as reusable workflows (`uses: @v2`) or copy into `.github/workflows/`. |
 
 ## The 4 layers
 
@@ -37,7 +37,7 @@ This is the central template repository. It provides:
 
 | Asset | Location | Inherited by |
 |-------|----------|-------------|
-| CI/CD workflow templates | `workflow-templates/` | All repos (via Actions tab) |
+| CI/CD workflow templates | `workflow-templates/` | All repos (via reusable workflow `@v2` or Actions tab copy) |
 | Deploy action | `actions/bigbase-deploy/` | All repos (via workflow `uses:`) |
 | README templates | `templates/readmes/` | New projects (via copy) |
 | Documentation hub | `docs/` | All repos (via reference) |

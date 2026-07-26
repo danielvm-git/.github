@@ -1,8 +1,16 @@
 name: Test Build Release
-# version: 3.0.1 — see workflow-templates/CHANGELOG.md
-# Copy to .github/workflows/test-build-release.yml and pair with deploy-go.yml → deploy.yml
+# version: 4.0.0 — see workflow-templates/CHANGELOG.md
+# Reusable workflow: call with `uses: danielvm-git/.github/.github/workflows/test-build-release-go.yml@v2`
+# Or copy to .github/workflows/test-build-release.yml and pair with deploy-go.yml → deploy.yml
 
 on:
+  workflow_call:
+    inputs:
+      site_url:
+        description: "Site URL for deploy metadata (optional, defaults to placeholder)"
+        required: false
+        type: string
+        default: "https://CHANGE-ME.bigbase.click"
   push:
     branches: [main]
   pull_request:
@@ -18,7 +26,7 @@ concurrency:
 env:
   GO_VERSION: '1.22'
   APP_TYPE: go
-  SITE_URL: "https://CHANGE-ME.bigbase.click"
+  SITE_URL: ${{ inputs.site_url || 'https://CHANGE-ME.bigbase.click' }}
 
 jobs:
   lint:
