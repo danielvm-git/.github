@@ -73,35 +73,61 @@ See [Agent Context Files](../reference/agent-context-files.md) for details.
 
 ### 4. Select and wire CI/CD workflow
 
-Choose the correct workflow template for your stack from the [CI/CD Templates](../reference/portfolio-standards.md#cicd-templates):
+Choose the correct workflow template pair for your stack from `workflow-templates/`:
 
-| Stack | Template |
-|-------|----------|
-| Node.js / TypeScript | `ci-cd-monorepo.yml` |
-| Python | `ci-cd-python.yml` |
-| Swift | `ci-cd-swift.yml` |
-| Rust | `ci-cd-rust.yml` |
+| Stack | CI Template | Deploy Template |
+|-------|-------------|-----------------|
+| Node.js / TypeScript | `test-build-release-node.yml` | `deploy-node.yml` |
+| Python | `test-build-release-python.yml` | `deploy-python.yml` |
+| Go | `test-build-release-go.yml` | `deploy-go.yml` |
+| Static site | `test-build-release-static.yml` | `deploy-static.yml` |
+| PHP | `test-build-release-php.yml` | `deploy-php.yml` |
+| Monorepo | `test-build-release-monorepo.yml` | `deploy-monorepo.yml` |
+| Swift | `test-build-release-swift.yml` | *(no deploy yet)* |
+| MkDocs | `test-build-release-pages-mkdocs.yml` | `deploy-pages-mkdocs.yml` |
+| Starlight | `test-build-release-pages-starlight.yml` | `deploy-pages-starlight.yml` |
 
-Place it in `.github/workflows/`:
+**Option A — Reusable workflow (recommended):** call templates directly from your repo's workflow:
+
+```yaml
+# .github/workflows/ci-cd.yml
+name: CI/CD
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    uses: danielvm-git/.github/.github/workflows/test-build-release-node.yml@v2
+    with:
+      site_url: "https://my-app.bigbase.click"
+    secrets: inherit
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: ci
+    uses: danielvm-git/.github/.github/workflows/deploy-node.yml@v2
+    with:
+      site_url: "https://my-app.bigbase.click"
+      ci_run_id: ${{ github.run_id }}
+    secrets: inherit
+```
+
+**Option B — Copy-once (legacy):** copy templates into `.github/workflows/`:
 
 ```bash
 mkdir -p .github/workflows
-cp /path/to/.github/workflow-templates/ci-cd-monorepo.yml .github/workflows/
+cp /path/to/.github/workflow-templates/test-build-release-node.yml .github/workflows/test-build-release.yml
+cp /path/to/.github/workflow-templates/deploy-node.yml .github/workflows/deploy.yml
 ```
 
 ### 5. Wire bigbase-deploy
 
-Add the deploy step to your workflow by referencing the `bigbase-deploy` action:
+If using **Option A** (reusable workflows), the deploy template already includes `bigbase-deploy`. Just set the required secrets in your repo settings.
 
-```yaml
-- name: Deploy
-  uses: danielvm-git/.github/actions/bigbase-deploy@v1
-  with:
-    app_type: <your-app-type>
-  secrets:
-    BIGBASE_DEPLOY_TOKEN: ${{ secrets.BIGBASE_DEPLOY_TOKEN }}
-    BIGBASE_SITE_ID: ${{ secrets.BIGBASE_SITE_ID }}
-```
+If using **Option B** (copy-once), the copied `deploy.yml` already references `bigbase-deploy`. Set the required secrets in your repo settings.
 
 Provision deploy credentials:
 

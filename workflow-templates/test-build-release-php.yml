@@ -1,10 +1,18 @@
 name: Test Build Release
-# version: 3.1.1 — see workflow-templates/CHANGELOG.md
-# Copy to .github/workflows/test-build-release.yml and pair with deploy-php.yml → deploy.yml
+# version: 4.0.0 — see workflow-templates/CHANGELOG.md
+# Reusable workflow: call with `uses: danielvm-git/.github/.github/workflows/test-build-release-php.yml@v2`
+# Or copy to .github/workflows/test-build-release.yml and pair with deploy-php.yml → deploy.yml
 # First PHP template — proven green against bigbase-canary-php (2026-07-25), the first
 # real end-to-end exercise of app_type: php through this pipeline.
 
 on:
+  workflow_call:
+    inputs:
+      site_url:
+        description: "Site URL for deploy metadata (optional, defaults to placeholder)"
+        required: false
+        type: string
+        default: "https://CHANGE-ME.bigbase.click"
   push:
     branches: [main]
   pull_request:
@@ -20,7 +28,7 @@ concurrency:
 env:
   APP_TYPE: php
   PHP_VERSION: '8.3'
-  SITE_URL: "https://CHANGE-ME.bigbase.click"
+  SITE_URL: ${{ inputs.site_url || 'https://CHANGE-ME.bigbase.click' }}
 
 jobs:
   test:

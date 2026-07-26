@@ -3,6 +3,10 @@
 # Compares each repo's workflow files against the canonical versions
 # in .github/workflow-templates/. Reports outdated or missing templates.
 # Usage: bash scripts/audit-template-versions.sh [--repo-pattern "big-*"]
+#
+# v4.0.0+: consumers may use reusable workflows (`uses: danielvm-git/.github/.github/workflows/<name>@v2`)
+# instead of copied files. This script currently only checks copied files with `# version:` headers.
+# A future enhancement should also detect `uses:` references and compare against the tagged version.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

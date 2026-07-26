@@ -1,5 +1,35 @@
 # Workflow Template Changelog
 
+## 4.0.0 — 2026-07-25
+
+### Reusable workflow conversion
+
+All 17 workflow templates now support `workflow_call` triggers alongside their original triggers. This enables the reusable workflow model (`uses: danielvm-git/.github/.github/workflows/<name>@v2`) in addition to the existing copy-once model.
+
+- **CI templates** (9 files): `test-build-release-{node,go,python,static,swift,monorepo,pages-mkdocs,pages-starlight,php}.yml` — added `workflow_call` trigger with optional `site_url` input (BigBase stacks) or empty inputs (pages/swift stacks).
+- **Deploy templates** (8 files): `deploy-{node,go,python,static,php,monorepo,pages-mkdocs,pages-starlight}.yml` — added `workflow_call` trigger with optional `site_url` and `ci_run_id` inputs. Artifact download uses `ci_run_id` input with fallback to `workflow_run.id` for backward compat.
+- **Dual-trigger:** all templates keep their original triggers (`push`/`pull_request` for CI, `workflow_run` for deploy) — existing copied files continue to work unchanged.
+- **`if` guard update:** deploy jobs now accept `workflow_call` events in addition to successful `workflow_run` events on `main`.
+- **Validation:** `validate-templates.sh` now requires `workflow_call:` in every template.
+- **Version bump:** all templates bumped from 3.x to 4.0.0 to signal the structural change.
+
+Consumer workflow example:
+```yaml
+jobs:
+  ci:
+    uses: danielvm-git/.github/.github/workflows/test-build-release-node.yml@v2
+    with:
+      site_url: "https://my-app.bigbase.click"
+    secrets: inherit
+  deploy:
+    needs: ci
+    uses: danielvm-git/.github/.github/workflows/deploy-node.yml@v2
+    with:
+      site_url: "https://my-app.bigbase.click"
+      ci_run_id: ${{ github.run_id }}
+    secrets: inherit
+```
+
 ## 3.1.2 — 2026-07-25
 
 ### Automated drift detection
