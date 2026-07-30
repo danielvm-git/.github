@@ -1,0 +1,201 @@
+name: Test Build Release (Fullstack)
+# version: 4.1.0 — see workflow-templates/CHANGELOG.md
+# Reusable workflow: call with `uses: danielvm-git/.github/.github/workflows/test-build-release-fullstack.yml@main`
+# Or copy to .github/workflows/test-build-release.yml and pair with deploy-fullstack.yml → deploy.yml
+
+on:
+  workflow_call:
+    inputs:
+      site_url:
+        description: "Site URL for deploy metadata (optional, defaults to placeholder)"
+        required: false
+        type: string
+        default: "https://CHANGE-ME.bigbase.click"
+      release_tool:
+        description: "Release tool to run: semantic-release | big-release"
+        required: false
+        type: string
+        default: "semantic-release"
+permissions:
+  contents: read
+
+concurrency:
+  group: pipeline-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  APP_TYPE: node
+  SITE_URL: ${{ inputs.site_url || 'https://CHANGE-ME.bigbase.click' }}
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          fetch-depth: 0
+
+      - uses: extractions/setup-just@dd7ede98942d9a6c9e0ab854b4132ff2ebc8cf89  # v2
+
+      - uses: pnpm/action-setup@fe43b28065e807d72774b9156492ed4e8a83424d  # v4.0.0
+        with:
+          version: 9
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # v6.4.0
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86  # v5.4.2
+
+      - name: Install system dependencies
+        run: |
+          if [ -f scripts/install-sysdeps.sh ]; then
+            bash scripts/install-sysdeps.sh
+          fi
+
+      - name: Preflight
+        run: |
+          if [ -f scripts/preflight.sh ]; then
+            bash scripts/preflight.sh
+          elif [ -f Makefile ] && grep -q '^preflight:' Makefile; then
+            make preflight
+          elif command -v pnpm >/dev/null 2>&1 && grep -q '"preflight"' package.json 2>/dev/null; then
+            pnpm run preflight
+          else
+            echo "WARN: No preflight script found — add scripts/preflight.sh"
+          fi
+
+      - name: Check Conventional Commits
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+        run: |
+          git log origin/main..HEAD --oneline | while read -r line; do
+            # Skip merge commits (GitHub auto-merge for PRs)
+            if echo "$line" | grep -qE "^[0-9a-f]+ Merge "; then
+              continue
+            fi
+            if ! echo "$line" | grep -qE "^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: "; then
+              echo "FAIL: Non-conventional commit: $line"
+              exit 1
+            fi
+          done
+          echo "PASS: All commits follow Conventional Commits"
+
+      - name: Check no AI agent attribution
+        if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+        run: |
+          if git log origin/main..HEAD --format="%B" | grep -qiE '^co[- ]authored[- ]by:'; then
+            echo "FAIL: Co-authored-by: footer found — blocked by CONVENTIONS.md"
+            exit 1
+          fi
+          echo "PASS: No AI agent attribution"
+
+      - name: Install Node & Python dependencies
+        run: |
+          pnpm install --frozen-lockfile || pnpm install
+          if [ -f pyproject.toml ] || [ -f requirements.txt ]; then
+            uv sync --all-extras || true
+          fi
+
+      - name: Install Playwright Browsers (if applicable)
+        run: |
+          if grep -q "playwright" package.json 2>/dev/null; then
+            pnpm exec playwright install --with-deps chromium
+          fi
+
+      - name: Lint
+        run: pnpm run lint --if-present
+
+      - name: Type check
+        run: pnpm run typecheck --if-present
+
+      - name: Test
+        run: pnpm test --if-present
+
+  build:
+    needs: [test]
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+
+      - uses: pnpm/action-setup@fe43b28065e807d72774b9156492ed4e8a83424d  # v4.0.0
+        with:
+          version: 9
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # v6.4.0
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86  # v5.4.2
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile || pnpm install
+
+      - name: Build
+        run: pnpm run build --if-present
+
+      - name: Post-build hook (optional)
+        run: |
+          if [ -f scripts/post-build.sh ]; then
+            bash scripts/post-build.sh
+          elif grep -q '"postbuild"' package.json 2>/dev/null; then
+            pnpm run postbuild
+          fi
+
+      - name: Write deploy-meta
+        run: |
+          jq -n \
+            --arg sha "${{ github.sha }}" \
+            --arg ref "${{ github.ref_name }}" \
+            --arg app_type "${{ env.APP_TYPE }}" \
+            '{sha: $sha, ref: $ref, app_type: $app_type}' > deploy-meta.json
+
+      - name: Upload deploy-meta artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: deploy-meta
+          path: deploy-meta.json
+          retention-days: 3
+
+  release:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [build]
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Run big-release
+        if: inputs.release_tool == 'big-release'
+        run: |
+          curl -sL https://github.com/danielvm-git/big-release/releases/latest/download/big-release-linux-amd64 -o big-release
+          chmod +x big-release
+          sudo mv big-release /usr/local/bin/
+          big-release release --verbose
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # v6.4.0
+        if: inputs.release_tool == 'semantic-release' || inputs.release_tool == ''
+        with:
+          node-version: 22
+
+      - name: Install semantic-release
+        if: inputs.release_tool == 'semantic-release' || inputs.release_tool == ''
+        run: npm install --no-save semantic-release @semantic-release/changelog @semantic-release/git
+
+      - name: Run semantic-release
+        if: inputs.release_tool == 'semantic-release' || inputs.release_tool == ''
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

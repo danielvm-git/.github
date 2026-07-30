@@ -1,0 +1,6 @@
+{
+  "name": "Deploy (Fullstack)",
+  "description": "Deployment pipeline: deploy fullstack app to BigBase on workflow_run completion — pair with test-build-release-fullstack.yml",
+  "iconName": "rocket",
+  "categories": ["Continuous deployment", "JavaScript", "Python"]
+}

@@ -1,5 +1,48 @@
 # Workflow Template Changelog
 
+## 4.2.0 — 2026-07-25
+
+### Monorepo template: subdirectory SPA support + governance hooks
+
+Targeted improvements to `test-build-release-monorepo.yml` for hybrid apps (Python backend + Node SPA in subdirectory). Addresses Discussion #32 (`big-bolao` migration).
+
+#### Added
+- **`node_subdir` input** — route Node steps to a subdirectory (e.g. `web/`). Updates `hashFiles()` checks, `npm --prefix`, and `cache-dependency-path`. Default empty = root.
+- **`pre_test` input** — shell command(s) run after preflight, before any lint/test. For governance scripts (`check_scoring_tables.py`, coverage thresholds).
+- **`post_test` input** — shell command(s) run after all tests, before build. For extra gates or reporting.
+- **`pre_build` input** — shell command(s) run after `deploy-meta.json` write. For asset generation.
+- **`post_build` input** — shell command(s) run after artifact upload. For auto-commit of build output (`web/dist/`).
+
+#### Fixed
+- **`pytest --if-present`** — replaced invalid pytest flag with a `find`-based file-existence check. Pytest now only runs when `test_*.py` or `*_test.py` files exist.
+
+#### Files changed
+- `workflow-templates/test-build-release-monorepo.yml`
+- `.github/workflows/test-build-release-monorepo.yml`
+
+#### Consumer example (big-bolao pattern)
+
+```yaml
+jobs:
+  ci:
+    uses: danielvm-git/.github/.github/workflows/test-build-release-monorepo.yml@v2
+    with:
+      node_subdir: "web"
+      pre_test: "python scripts/check_scoring_tables.py"
+      post_test: "coverage report --fail-under=80"
+      post_build: "git add web/dist && git commit -m 'chore: update dist'"
+    secrets: inherit
+  deploy:
+    needs: ci
+    uses: danielvm-git/.github/.github/workflows/deploy-monorepo.yml@v2
+    with:
+      site_url: "https://my-app.bigbase.click"
+      ci_run_id: ${{ github.run_id }}
+    secrets: inherit
+```
+
+---
+
 ## 4.0.0 — 2026-07-25
 
 ### Reusable workflow conversion

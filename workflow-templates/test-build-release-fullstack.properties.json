@@ -1,0 +1,6 @@
+{
+  "name": "Test Build Release (Fullstack SvelteKit/Node + Python)",
+  "description": "Checklist pipeline: test, build, release for fullstack apps (Node/pnpm + Python/uv) — reusable workflow or pair with deploy-fullstack.yml",
+  "iconName": "rocket",
+  "categories": ["Continuous integration", "JavaScript", "Python", "TypeScript"]
+}

@@ -127,6 +127,31 @@ for f in "$TEMPLATES_DIR"/*.yml; do
   fi
 done
 
+# Reusable workflow mirror check (.github/workflows)
+# Copies may differ from templates: reusable workflows should NOT have push/PR triggers
+# (they run only via workflow_call), while templates keep them for standalone use.
+# We verify: file exists, has workflow_call, and version header matches.
+echo ""
+echo "--- reusable workflow mirror check ---"
+WORKFLOWS_DIR="$REPO_ROOT/.github/workflows"
+for f in "$TEMPLATES_DIR"/*.yml; do
+  name=$(basename "$f")
+  mirror="$WORKFLOWS_DIR/$name"
+  if [ ! -f "$mirror" ]; then
+    echo "  FAIL: $name — not mirrored in .github/workflows/"
+    ((FAIL++)) || true
+  elif [[ "$name" != codeql* ]] && ! grep -q "workflow_call:" "$mirror"; then
+    echo "  FAIL: $name — .github/workflows/$name missing workflow_call trigger"
+    ((FAIL++)) || true
+  elif [ "$(head -2 "$mirror" | grep '# version:')" != "$(head -2 "$f" | grep '# version:')" ]; then
+    echo "  FAIL: $name — .github/workflows/$name version differs from template"
+    ((FAIL++)) || true
+  else
+    echo "  PASS: $name (mirrored in .github/workflows/)"
+    ((PASS++)) || true
+  fi
+done
+
 echo ""
 echo "Validation: $PASS passed, $FAIL failed"
 if [ "$FAIL" -gt 0 ]; then

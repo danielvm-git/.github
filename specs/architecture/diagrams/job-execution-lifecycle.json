@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "Job Execution Lifecycle",
+    "subtitle": "State machine from PR to production"
+  },
+  "lanes": [
+    { "id": "main", "label": "Pipeline" },
+    { "id": "cd", "label": "Deployment" },
+    { "id": "terminal", "label": "Outcomes" }
+  ],
+  "states": [
+    { "id": "start", "type": "start", "label": "Push", "lane": "main", "col": 0 },
+    { "id": "test", "type": "active", "label": "Testing", "lane": "main", "col": 1 },
+    { "id": "build", "type": "active", "label": "Building", "lane": "main", "col": 2 },
+    { "id": "trigger", "type": "waiting", "label": "Wait", "lane": "cd", "col": 0, "width": 48 },
+    { "id": "deploy", "type": "active", "label": "Deploy", "lane": "cd", "col": 1, "width": 48 },
+    { "id": "verify", "type": "decision", "label": "Verify", "lane": "cd", "col": 2, "width": 48 },
+    { "id": "live", "type": "success", "label": "LIVE", "lane": "terminal", "col": 1 },
+    { "id": "fail", "type": "failure", "label": "FAILED", "lane": "terminal", "col": 2 }
+  ],
+  "transitions": [
+    { "from": "start", "to": "test" },
+    { "from": "test", "to": "build" },
+    { "from": "build", "to": "trigger", "label": "workflow_run" },
+    { "from": "trigger", "to": "deploy" },
+    { "from": "deploy", "to": "verify" },
+    { "from": "verify", "to": "live", "label": "pass" },
+    { "from": "verify", "to": "fail", "label": "fail" }
+  ]
+}

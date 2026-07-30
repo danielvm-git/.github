@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "CI/CD Pipeline Workflow",
+    "subtitle": "Decoupled CI and CD with concurrency controls"
+  },
+  "lanes": [
+    { "id": "github", "label": "GitHub Triggers" },
+    { "id": "ci", "label": "Commit Stage (CI)" },
+    { "id": "cd", "label": "Deploy Stage (CD)" }
+  ],
+  "nodes": [
+    { "id": "pr", "lane": "github", "col": 0, "type": "external", "label": "Pull Request" },
+    { "id": "push", "lane": "github", "col": 1, "type": "external", "label": "Push to main" },
+    { "id": "test", "lane": "ci", "col": 2, "type": "backend", "label": "Test & Lint", "tag": "cancel-in-progress: true" },
+    { "id": "build", "lane": "ci", "col": 3, "type": "backend", "label": "Build", "sublabel": "outputs deploy-meta.json" },
+    { "id": "deploy", "lane": "cd", "col": 4, "type": "cloud", "label": "Deploy", "tag": "cancel-in-progress: false" },
+    { "id": "health", "lane": "cd", "col": 5, "type": "security", "label": "Smoke Test", "sublabel": "8 retries" }
+  ],
+  "edges": [
+    { "from": "pr", "to": "test" },
+    { "from": "push", "to": "test" },
+    { "from": "test", "to": "build" },
+    { "from": "build", "to": "deploy", "label": "workflow_run" },
+    { "from": "deploy", "to": "health" }
+  ]
+}

@@ -39,6 +39,10 @@ inputs:
     description: 'JSON array of URL paths to pass through to the origin server (e.g. ["/api/version","/mcp"])'
     required: false
     default: '[]'
+  health_check_expected_body:
+    description: 'Expected text in response body during health check (optional)'
+    required: false
+    default: ''
   health_check_attempts:
     required: false
     default: '8'
@@ -176,13 +180,28 @@ runs:
       run: |
         ATTEMPTS=${{ inputs.health_check_attempts }}
         INTERVAL=${{ inputs.health_check_interval_seconds }}
+        EXPECTED_BODY="${{ inputs.health_check_expected_body }}"
         for i in $(seq 1 "$ATTEMPTS"); do
-          STATUS=$(curl -s -o /dev/null -w '%{http_code}' "${{ inputs.site_url }}" || echo "000")
+          RESPONSE_FILE=$(mktemp)
+          STATUS=$(curl -s -o "$RESPONSE_FILE" -w '%{http_code}' "${{ inputs.site_url }}" || echo "000")
           if [ "$STATUS" = "200" ] || [ "$STATUS" = "301" ] || [ "$STATUS" = "302" ]; then
-            echo "✅ Site LIVE (HTTP $STATUS)"
-            exit 0
+            if [ -n "$EXPECTED_BODY" ]; then
+              if grep -q "$EXPECTED_BODY" "$RESPONSE_FILE"; then
+                echo "✅ Site LIVE and body matches '$EXPECTED_BODY' (HTTP $STATUS)"
+                rm -f "$RESPONSE_FILE"
+                exit 0
+              else
+                echo "Attempt $i/$ATTEMPTS: HTTP $STATUS OK but body missing '$EXPECTED_BODY', waiting ${INTERVAL}s..."
+              fi
+            else
+              echo "✅ Site LIVE (HTTP $STATUS)"
+              rm -f "$RESPONSE_FILE"
+              exit 0
+            fi
+          else
+            echo "Attempt $i/$ATTEMPTS: HTTP $STATUS, waiting ${INTERVAL}s..."
           fi
-          echo "Attempt $i/$ATTEMPTS: HTTP $STATUS, waiting ${INTERVAL}s..."
+          rm -f "$RESPONSE_FILE"
           sleep "$INTERVAL"
         done
         echo "::error::Health check failed after $ATTEMPTS attempts"

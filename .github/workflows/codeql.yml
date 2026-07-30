@@ -1,0 +1,36 @@
+name: CodeQL
+# version: 2.0.0 — see workflow-templates/CHANGELOG.md
+# Unified CodeQL — set the language via the LANGUAGES env var below.
+
+on:
+  push:
+    branches: [main, develop, master]
+  pull_request:
+    branches: [main, develop, master]
+  schedule:
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codeql-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  LANGUAGES: javascript
+
+jobs:
+  analyze:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    permissions:
+      security-events: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ env.LANGUAGES }}
+
+      - uses: github/codeql-action/analyze@v3
