@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Portfolio CI/CD Architecture",
+    "subtitle": "Template layer and consumer repositories"
+  },
+  "components": [
+    { "id": "consumers", "type": "frontend", "label": "28 Consumer Repos", "pos": [50, 200], "size": [150, 60] },
+    { "id": "templates", "type": "backend", "label": "workflow-templates/", "pos": [300, 100], "size": [150, 60] },
+    { "id": "reusable", "type": "backend", "label": "workflows/", "pos": [300, 200], "size": [150, 60] },
+    { "id": "action", "type": "backend", "label": "actions/bigbase-deploy", "pos": [300, 300], "size": [150, 60] },
+    { "id": "github", "type": "cloud", "label": "GitHub Actions", "pos": [550, 200], "size": [150, 60] },
+    { "id": "bigbase", "type": "cloud", "label": "BigBase API", "pos": [800, 200], "size": [150, 60] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "danielvm-git/.github", "wraps": ["templates", "reusable", "action"] }
+  ],
+  "connections": [
+    { "from": "consumers", "to": "templates", "label": "inherits" },
+    { "from": "consumers", "to": "reusable", "label": "calls" },
+    { "from": "reusable", "to": "action", "label": "uses", "labelDy": 24 },
+    { "from": "templates", "to": "github", "label": "runs on" },
+    { "from": "reusable", "to": "github", "label": "runs on" },
+    { "from": "action", "to": "github", "label": "runs on" },
+    { "from": "github", "to": "bigbase", "label": "deploys to" }
+  ]
+}

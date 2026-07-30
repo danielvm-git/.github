@@ -127,6 +127,25 @@ for f in "$TEMPLATES_DIR"/*.yml; do
   fi
 done
 
+# Reusable workflow mirror check (.github/workflows)
+echo ""
+echo "--- reusable workflow mirror check ---"
+WORKFLOWS_DIR="$REPO_ROOT/.github/workflows"
+for f in "$TEMPLATES_DIR"/*.yml; do
+  name=$(basename "$f")
+  mirror="$WORKFLOWS_DIR/$name"
+  if [ ! -f "$mirror" ]; then
+    echo "  FAIL: $name — not mirrored in .github/workflows/"
+    ((FAIL++)) || true
+  elif ! diff -q "$f" "$mirror" >/dev/null 2>&1; then
+    echo "  FAIL: $name — .github/workflows/$name differs from workflow-templates/$name"
+    ((FAIL++)) || true
+  else
+    echo "  PASS: $name (mirrored in .github/workflows/)"
+    ((PASS++)) || true
+  fi
+done
+
 echo ""
 echo "Validation: $PASS passed, $FAIL failed"
 if [ "$FAIL" -gt 0 ]; then

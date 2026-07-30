@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Artifact Handoff Sequence",
+    "subtitle": "Single-Build contract (deploy-meta.json)"
+  },
+  "participants": [
+    { "id": "ci", "type": "backend", "label": "CI Workflow" },
+    { "id": "artifacts", "type": "cloud", "label": "Artifacts", "sublabel": "GitHub" },
+    { "id": "cd", "type": "backend", "label": "CD Workflow" },
+    { "id": "bigbase", "type": "cloud", "label": "BigBase API" }
+  ],
+  "messages": [
+    { "from": "ci", "to": "artifacts", "y": 180, "label": "upload deploy-meta.json" },
+    { "from": "ci", "to": "cd", "y": 240, "label": "trigger workflow_run", "variant": "dashed" },
+    { "from": "cd", "to": "artifacts", "y": 300, "label": "download deploy-meta.json" },
+    { "from": "cd", "to": "bigbase", "y": 360, "label": "POST /deploy (with pinned SHA)" },
+    { "from": "bigbase", "to": "cd", "y": 420, "label": "deploy ID", "variant": "return" },
+    { "from": "cd", "to": "bigbase", "y": 480, "label": "poll health check" }
+  ]
+}
