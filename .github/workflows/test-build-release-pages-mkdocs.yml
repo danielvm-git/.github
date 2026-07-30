@@ -11,11 +11,6 @@ on:
         required: false
         type: string
         default: "docs/mkdocs.yml"
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
 permissions:
   contents: read
 

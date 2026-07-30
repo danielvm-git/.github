@@ -16,11 +16,6 @@ on:
         required: false
         type: string
         default: "semantic-release"
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
 permissions:
   contents: read
 

@@ -21,11 +21,6 @@ on:
         required: false
         type: string
         default: "mypy"
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
 permissions:
   contents: read
 

@@ -6,11 +6,6 @@ name: Test Build Release
 on:
   workflow_call:
     inputs: {}
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
 permissions:
   contents: read
 
