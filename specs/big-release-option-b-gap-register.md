@@ -56,12 +56,32 @@ what each repo must resolve before it can adopt the reusable workflow.
   central template gains a container-deploy option. The `release-version.txt` artifact
   contract must keep working.
 
+### big-token-saver (Rust workspace + npm wrapper)
+- Migrated 2026-08-03 as the first Rust repo. Multi-crate Cargo workspace
+  (`crates/bts-map`) plus an npm wrapper (`package.json` bin → `bin/bts`).
+- Release assets: cross-compiled `bts-map-<suffix>.tar.gz` binaries are uploaded to the
+  GitHub release via the github plugin's `assets` (top-level `pluginConfigs:` map form —
+  the released binary rejects inline plugin config maps).
+- npm publish is tag-comparison based in CI (PRE_TAG vs POST_TAG), not a big-release
+  publisher — the wrapper package stays at `0.0.0-development`.
+- **Action**: when a central Rust/cargo template lands, adopt `release_tool: "big-release"`;
+  consider big-release's `publishers.crates` for the crate itself; keep the bespoke
+  cross-compile + npm bundle steps (they are platform-matrix specific).
+- Notes: (a) `successComment` is typed `string` in big-release v2.4.3 — the old
+  `successComment: false` intent is expressed as `successComment: ""`; there is no true
+  boolean disable and the Success hook posts a fallback comment when release commits
+  reference issues. (b) asset `label` is used verbatim as the upload filename (no
+  `{filename}` substitution like semantic-release). (c) post-release sync rewrites the
+  crate version in `crates/bts-map/Cargo.toml` + `Cargo.lock` so `bts-map --version`
+  reflects the release.
+
 ## Central template gaps (repo-agnostic)
 
 - Add `release_tool` input wiring end-to-end (template already declares it for
   `test-build-release-python.yml`).
 - Fold the CC/AI-attribution `merge-base --is-ancestor` hardening into the shared checks.
 - Consider a container-deploy (GHCR) publish option to absorb big-vps-oracle.
+- Consider a Rust/cargo template variant (workspace version sync + cross-compile assets).
 
 ## Governance
 
