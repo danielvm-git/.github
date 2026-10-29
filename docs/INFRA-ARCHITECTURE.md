@@ -231,7 +231,7 @@ jobs:
           fetch-depth: 0
       - name: Check Conventional Commits
         run: |
-          git log origin/${{ github.base_ref }}..HEAD --oneline | while read -r line; do
+          git log origin/${{ github.base_ref }}..HEAD --format=%s | while read -r line; do
             if ! echo "$line" | grep -qE "^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: "; then
               echo "FAIL: Non-conventional commit: $line"
               exit 1

@@ -1,5 +1,28 @@
 # Workflow Template Changelog
 
+## 4.2.1 — 2026-10-29
+
+### Fix: Conventional Commits check rejected every commit on pull requests
+
+The verify job read `git log origin/main..HEAD --oneline`, which prefixes each line with the
+short SHA, so `^(feat|fix|...)` never matched and any PR with a commit failed
+(`FAIL: ac26a82 feat: valid conventional commit`). Push-to-`main` runs passed only because
+the range was empty. Found by `danielvm-git/big-remote-control` while adopting the Swift template.
+
+#### Fixed
+- **Commit subject check** — reads `--format=%s` (subject only) instead of `--oneline`.
+- **Merge-commit skip** — matches `^Merge ` (the subject) instead of `^[0-9a-f]+ Merge `.
+
+#### Files changed
+- `workflow-templates/test-build-release-*.yml` and `.github/workflows/test-build-release-*.yml`
+  (fullstack, go, monorepo, node, pages-mkdocs, pages-starlight, php, python, static, swift) — patch bump
+- `scripts/check-conventional-commits.sh`
+- `docs/INFRA-ARCHITECTURE.md`
+
+#### Consumers
+Repos that copied a template: replace `--oneline` with `--format=%s` in the
+"Check Conventional Commits" step. Reusable-workflow callers get the fix from `@main`.
+
 ## 4.2.0 — 2026-07-25
 
 ### Monorepo template: subdirectory SPA support + governance hooks
