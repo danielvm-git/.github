@@ -14,7 +14,7 @@ while IFS= read -r line; do
     echo "FAIL: $line"
     ((FAILS++))
   fi
-done < <(git log "$BASE..HEAD" --oneline)
+done < <(git log "$BASE..HEAD" --format=%s)
 
 # Check for prohibited Co-authored-by: footers in full commit bodies
 if git log "$BASE..HEAD" --format="%B" | grep -qiE '^co[- ]authored[- ]by:'; then
