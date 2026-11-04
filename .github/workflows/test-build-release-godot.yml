@@ -1,0 +1,264 @@
+name: Test Build Release
+# version: 4.4.0 — see workflow-templates/CHANGELOG.md
+# Reusable workflow: call with `uses: danielvm-git/.github/.github/workflows/test-build-release-godot.yml@main`
+# Or copy to .github/workflows/test-build-release.yml (Godot 4.x — no deploy template yet: iOS ships via GitHub Release)
+#
+# Godot specifics:
+#   - the project's own `scripts/preflight.sh` is the gate (lint, format, strict typing, GUT, PII, trace)
+#   - `build` is the fast ubuntu boundary-artifact job (deploy-meta.json) so the release never
+#     waits on a macOS runner; the macOS `export` job runs in parallel and attaches its bundle
+#     to the release big-release already published.
+#   - godot versions: the export job needs export templates; the gate job does not.
+
+on:
+  workflow_call:
+    inputs:
+      godot_version:
+        description: "Godot engine version, e.g. 4.7.0"
+        required: false
+        type: string
+        default: "4.7.0"
+      project_dir:
+        description: "Directory containing project.godot"
+        required: false
+        type: string
+        default: "game"
+      export_preset:
+        description: "Godot export preset name (e.g. iOS). Empty disables the macOS export job."
+        required: false
+        type: string
+        default: ""
+      export_path:
+        description: "Export output path, relative to the repository root"
+        required: false
+        type: string
+        default: "build/godot/game.zip"
+      release_tool:
+        description: "Release tool to run: big-release | semantic-release"
+        required: false
+        type: string
+        default: "big-release"
+      bootstrap_gate:
+        description: "Pass --bootstrap to scripts/preflight.sh (only for a repo that has no tests yet)"
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: pipeline-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GODOT_VERSION: ${{ inputs.godot_version }}
+  PROJECT_DIR: ${{ inputs.project_dir }}
+  APP_TYPE: godot
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+        with:
+          python-version: "3.12"
+
+      - name: Install gdtoolkit (gdlint + gdformat)
+        run: pip install "gdtoolkit==4.*" pyyaml
+
+      - uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6  # v2.4.0
+        with:
+          version: ${{ env.GODOT_VERSION }}
+          use-dotnet: false
+          include-templates: false
+
+      - name: Gate (project preflight)
+        run: |
+          FLAGS=""
+          [ "${{ inputs.bootstrap_gate }}" = "true" ] && FLAGS="--bootstrap"
+          if [ -f scripts/preflight.sh ]; then
+            bash scripts/preflight.sh $FLAGS
+          else
+            echo "WARN: scripts/preflight.sh not found — running the minimum engine check"
+            godot --headless --path "$PROJECT_DIR" --import
+          fi
+
+  verify:
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    needs: [test]
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Check Conventional Commits
+        run: |
+          BASE="origin/main"
+          git rev-parse --verify "$BASE" >/dev/null 2>&1 || BASE=$(git rev-list --max-parents=0 HEAD)
+          git log "$BASE"..HEAD --format=%s | while IFS= read -r line; do
+            case "$line" in Merge*) continue ;; esac
+            echo "$line" | grep -qE "^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: " \
+              || { echo "FAIL: Non-conventional commit: $line"; exit 1; }
+          done
+          echo "PASS: All commits follow Conventional Commits"
+
+      - name: Check no AI agent attribution
+        run: |
+          BASE="origin/main"
+          git rev-parse --verify "$BASE" >/dev/null 2>&1 || BASE=$(git rev-list --max-parents=0 HEAD)
+          if git log "$BASE"..HEAD --format="%B" | grep -qiE '^co[- ]authored[- ]by:'; then
+            echo "FAIL: Co-authored-by: footer found"
+            exit 1
+          fi
+          echo "PASS: No AI agent attribution"
+
+      - name: Offline-only guard (no network APIs in game code)
+        run: |
+          if grep -RInE '\b(HTTPRequest|HTTPClient|WebSocketPeer|TCPServer|StreamPeerTCP|UDPServer|PacketPeerUDP|ENetMultiplayerPeer)\b' \
+              "$PROJECT_DIR/scripts" "$PROJECT_DIR/components" "$PROJECT_DIR/scenes" 2>/dev/null; then
+            echo "FATAL: network API detected in an offline game"
+            exit 1
+          fi
+          echo "OK: no network APIs"
+
+  build:
+    needs: [verify]
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+
+      - name: Write deploy-meta
+        run: |
+          jq -n \
+            --arg sha "${{ github.sha }}" \
+            --arg ref "${{ github.ref_name }}" \
+            --arg app_type "$APP_TYPE" \
+            '{sha: $sha, ref: $ref, app_type: $app_type}' > deploy-meta.json
+          cat deploy-meta.json
+
+      - name: Upload deploy-meta artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: deploy-meta
+          path: deploy-meta.json
+          retention-days: 30
+          if-no-files-found: error
+
+  export:
+    if: inputs.export_preset != ''
+    needs: [test]
+    runs-on: macos-14
+    timeout-minutes: 40
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          fetch-depth: 0
+
+      - uses: chickensoft-games/setup-godot@ac93246ea68518a384c1c280a496e5989341f2f6  # v2.4.0
+        with:
+          version: ${{ env.GODOT_VERSION }}
+          use-dotnet: false
+          include-templates: true
+
+      - name: Export ${{ inputs.export_preset }}
+        run: |
+          mkdir -p "$(dirname "${{ inputs.export_path }}")"
+          godot --headless --path "$PROJECT_DIR" --import
+          godot --headless --path "$PROJECT_DIR" --export-release "${{ inputs.export_preset }}" "$PWD/${{ inputs.export_path }}"
+          ls -lh "${{ inputs.export_path }}"
+
+      - name: Upload export artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: godot-export
+          path: ${{ inputs.export_path }}
+          retention-days: 30
+          if-no-files-found: error
+
+  release:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [verify, build]
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Install big-release
+        if: inputs.release_tool == 'big-release'
+        run: |
+          curl -sSL https://github.com/danielvm-git/big-release/releases/latest/download/big-release-linux-amd64 -o big-release
+          chmod +x big-release
+          sudo mv big-release /usr/local/bin/
+          big-release health
+
+      - name: Validate release config
+        if: inputs.release_tool == 'big-release'
+        run: big-release validate
+
+      - name: Run big-release
+        if: inputs.release_tool == 'big-release'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_AUTHOR_NAME: big-release-bot
+          GIT_AUTHOR_EMAIL: big-release-bot@danielvm-git.github.io
+          GIT_COMMITTER_NAME: big-release-bot
+          GIT_COMMITTER_EMAIL: big-release-bot@danielvm-git.github.io
+        run: |
+          BEFORE=$(git describe --tags --abbrev=0 2>/dev/null || echo none)
+          SUBJECT=$(git log -1 --format=%s)
+          echo "head: $SUBJECT"
+          big-release release --verbose
+          AFTER=$(git describe --tags --abbrev=0 2>/dev/null || echo none)
+          echo "tag before=$BEFORE after=$AFTER"
+          # A releasable commit must move the tag; a silent no-op is the failure mode
+          # this guard exists for (branch not configured, wrong fetch-depth, dry-run).
+          if [ "$BEFORE" = "$AFTER" ] && printf '%s' "$SUBJECT" | grep -qE '^(feat|fix|perf)(\(.+\))?!?: '; then
+            echo "FATAL: releasable commit produced no new tag"
+            exit 1
+          fi
+          echo "OK: release step honest"
+
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        if: inputs.export_preset != ''
+        with:
+          name: godot-export
+          path: build/godot
+
+      - name: Attach export to the published release
+        if: inputs.export_preset != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG=$(git tag --sort=-v:refname | head -1)
+          test -n "$TAG" || { echo "no release tag to attach to"; exit 1; }
+          for i in 1 2 3 4 5 6; do
+            if gh release view "$TAG" >/dev/null 2>&1; then
+              gh release upload "$TAG" "${{ inputs.export_path }}" --clobber
+              exit 0
+            fi
+            echo "release $TAG not published yet (attempt $i) — waiting 30s"
+            sleep 30
+          done
+          echo "FATAL: release $TAG never appeared"
+          exit 1
