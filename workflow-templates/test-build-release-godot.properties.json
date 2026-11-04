@@ -1,0 +1,6 @@
+{
+  "name": "Test Build Release (Godot)",
+  "description": "Run a Godot 4.x project's own preflight (gdlint, gdformat, strict typing, GUT, trace), verify Conventional Commits and offline-only rules, emit the deploy-meta boundary artifact, optionally export an iOS/desktop preset on macOS, and release with big-release. Reusable workflow @v4.4.0. No deploy template yet (Godot ships via GitHub Release).",
+  "iconName": "godot",
+  "categories": ["Continuous integration", "Godot", "Game engine"]
+}

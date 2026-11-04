@@ -1,3 +1,23 @@
+## 4.4.0 — 2026-11-04
+
+### New template: `test-build-release-godot.yml` (Godot 4.x)
+
+Adds the missing stack to the portfolio: Godot 4.x / GDScript projects.
+
+#### Added
+- **`test-build-release-godot.yml`** + `workflow-templates/test-build-release-godot.yml` (mirrored, same version header) and `.properties.json` for the UI template catalog.
+- Inputs: `godot_version` (default `4.7.0`), `project_dir` (default `game`), `export_preset` (default empty = no macOS export), `export_path`, `release_tool` (default `big-release`), `bootstrap_gate` (passes `--bootstrap` to a project's `scripts/preflight.sh`).
+- Jobs `test → verify → build → release`, plus an optional macOS `export` job.
+
+#### Design decisions
+- **The project owns its gate.** `test` runs `bash scripts/preflight.sh` when present (lint, format, strict typing, GUT, PII audit, trace), so a Godot repo's own conventions stay in the repo instead of leaking into the shared workflow.
+- **Release never waits on macOS.** `build` is a fast `ubuntu-22.04` job that emits the `deploy-meta.json` boundary artifact (`app_type: godot`); the macOS `export` job runs in parallel and attaches the exported bundle to the release big-release already published. A macOS queue delay must never delay a version.
+- **`big-release` is the default** `release_tool`, with the same curl install, `health` + `validate` pre-steps, and the GIT identity env the canaries use.
+- **Post-release honesty guard** — the release job fails when a `feat|fix|perf` commit produced no new tag, closing the silent no-op mode.
+- Job-scoped `permissions` only (Issue #34), SHA-pinned actions (including `chickensoft-games/setup-godot@v2.4.0`), `ubuntu-22.04` runners, `cancel-in-progress: true`.
+
+---
+
 # Workflow Template Changelog
 
 ## 4.3.1 — 2026-11-04
