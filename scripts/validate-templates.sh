@@ -152,6 +152,31 @@ for f in "$TEMPLATES_DIR"/*.yml; do
   fi
 done
 
+# Static template big-release production-readiness check (Issue #40)
+echo ""
+echo "--- test-build-release-static big-release readiness ---"
+for target in "$TEMPLATES_DIR/test-build-release-static.yml" "$WORKFLOWS_DIR/test-build-release-static.yml"; do
+  label="${target#"$REPO_ROOT"/}"
+  static_missing=""
+  grep -q '^# version: 4\.2\.0' "$target" || static_missing="$static_missing version-4.2.0"
+  grep -q 'node_version:' "$target" || static_missing="$static_missing node_version-input"
+  grep -q 'default: "24"' "$target" || static_missing="$static_missing node-24-default"
+  grep -q 'default: "big-release"' "$target" || static_missing="$static_missing big-release-default"
+  grep -q 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1' "$target" || static_missing="$static_missing checkout-v7.0.1"
+  grep -q 'actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0' "$target" || static_missing="$static_missing setup-node-v7.1.0"
+  grep -q 'GIT_AUTHOR_NAME: big-release-bot' "$target" || static_missing="$static_missing git-author-name"
+  grep -q 'GIT_COMMITTER_NAME: big-release-bot' "$target" || static_missing="$static_missing git-committer-name"
+  grep -q 'name: Update VERSION file' "$target" || static_missing="$static_missing update-version-step"
+  grep -q '## \[Unreleased\]' "$target" || static_missing="$static_missing changelog-header-contract"
+  if [ -n "$static_missing" ]; then
+    echo "  FAIL: $label — missing:$static_missing"
+    ((FAIL++)) || true
+  else
+    echo "  PASS: $label"
+    ((PASS++)) || true
+  fi
+done
+
 echo ""
 echo "Validation: $PASS passed, $FAIL failed"
 if [ "$FAIL" -gt 0 ]; then
