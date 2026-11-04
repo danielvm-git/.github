@@ -158,7 +158,7 @@ echo "--- test-build-release-static big-release readiness ---"
 for target in "$TEMPLATES_DIR/test-build-release-static.yml" "$WORKFLOWS_DIR/test-build-release-static.yml"; do
   label="${target#"$REPO_ROOT"/}"
   static_missing=""
-  grep -q '^# version: 4\.2\.0' "$target" || static_missing="$static_missing version-4.2.0"
+  grep -q '^# version: 4\.2\.[0-9]' "$target" || static_missing="$static_missing version-4.2.x"
   grep -q 'node_version:' "$target" || static_missing="$static_missing node_version-input"
   grep -q 'default: "24"' "$target" || static_missing="$static_missing node-24-default"
   grep -q 'default: "big-release"' "$target" || static_missing="$static_missing big-release-default"
@@ -170,6 +170,25 @@ for target in "$TEMPLATES_DIR/test-build-release-static.yml" "$WORKFLOWS_DIR/tes
   grep -q '## \[Unreleased\]' "$target" || static_missing="$static_missing changelog-header-contract"
   if [ -n "$static_missing" ]; then
     echo "  FAIL: $label — missing:$static_missing"
+    ((FAIL++)) || true
+  else
+    echo "  PASS: $label"
+    ((PASS++)) || true
+  fi
+done
+
+# Reusable workflow job-level permissions check (Issue #34)
+# test-build-release-* must NOT set top-level ^permissions: (which blocks job-level
+# escalation on release jobs under workflow_call); permissions must be job-scoped.
+echo ""
+echo "--- test-build-release job-scoped permissions (Issue #34) ---"
+for target in "$TEMPLATES_DIR"/test-build-release-*.yml "$WORKFLOWS_DIR"/test-build-release-*.yml; do
+  label="${target#"$REPO_ROOT"/}"
+  if grep -q '^permissions:' "$target"; then
+    echo "  FAIL: $label — has top-level permissions: ceiling (must be job-scoped)"
+    ((FAIL++)) || true
+  elif ! grep -q '^    permissions:' "$target"; then
+    echo "  FAIL: $label — missing job-level permissions:"
     ((FAIL++)) || true
   else
     echo "  PASS: $label"
