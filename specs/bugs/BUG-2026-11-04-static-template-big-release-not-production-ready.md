@@ -1,6 +1,6 @@
 ---
 bug_id: BUG-2026-11-04-static-template-big-release-not-production-ready
-status: open
+status: fixed
 severity: medium
 scope: workflow-templates/test-build-release-static.yml
 title: Make the big-release path in test-build-release-static production-ready (Issue #40)
@@ -46,15 +46,20 @@ Verified directly against `workflow-templates/test-build-release-static.yml` lin
 
 ## Acceptance Criteria
 
-- [ ] `GIT_AUTHOR_NAME`, `GIT_AUTHOR_EMAIL`, `GIT_COMMITTER_NAME`, `GIT_COMMITTER_EMAIL` configured on `Run big-release`
-- [ ] `Update VERSION file` step added after `Run big-release` (guarded by `big-release` release_tool condition)
-- [ ] `node_version` input added (default `"24"`) and used across `test`, `build`, and `release` jobs
-- [ ] `release_tool` defaults to `"big-release"` (both `workflow_call` input default and standalone fallback)
-- [ ] Action pins refreshed to `actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1` and `actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0`
-- [ ] `CHANGELOG.md` header contract (`# Changelog` + `## [Unreleased]` + `## [version]`) documented in the template
-- [ ] Template version bumped to `4.2.0` in both `workflow-templates/test-build-release-static.yml` and `.github/workflows/test-build-release-static.yml`, with `workflow-templates/CHANGELOG.md` entry added
-- [ ] `bash scripts/validate-templates.sh` and `bash scripts/preflight.sh` pass
+- [x] `GIT_AUTHOR_NAME`, `GIT_AUTHOR_EMAIL`, `GIT_COMMITTER_NAME`, `GIT_COMMITTER_EMAIL` configured on `Run big-release`
+- [x] `Update VERSION file` step added after `Run big-release` (guarded by `big-release` release_tool condition)
+- [x] `node_version` input added (default `"24"`) and used across `test`, `build`, and `release` jobs
+- [x] `release_tool` defaults to `"big-release"` (both `workflow_call` input default and standalone fallback)
+- [x] Action pins refreshed to `actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1` and `actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0`
+- [x] `CHANGELOG.md` header contract (`# Changelog` + `## [Unreleased]` + `## [version]`) documented in the template
+- [x] Template version bumped to `4.2.0` in both `workflow-templates/test-build-release-static.yml` and `.github/workflows/test-build-release-static.yml`, with `workflow-templates/CHANGELOG.md` entry added
+- [x] `bash scripts/validate-templates.sh` and `bash scripts/preflight.sh` pass
 
 ## Resolution
 
-<!-- filled in by validate-fix -->
+**Fixed:** 2026-11-04
+**Root cause confirmed:** `test-build-release-static.yml` (v4.1.1) added `big-release release --verbose` without the git committer identity environment variables (`GIT_AUTHOR_*` / `GIT_COMMITTER_*`) or post-release `VERSION` sync step used by the `bigbase-canary-*` reference workflows, while retaining Node 22 and stale `checkout@v7.0.0` / `setup-node@v6.4.0` pins.
+**Fix applied:** Updated `workflow-templates/test-build-release-static.yml` and `.github/workflows/test-build-release-static.yml` to v4.2.0 with `big-release-bot` git identity env vars, post-release `Update VERSION file` step, `node_version` input defaulting to `"24"`, `release_tool` defaulting to `"big-release"` (with `env.RELEASE_TOOL` standalone fallback), `actions/checkout@v7.0.1` and `actions/setup-node@v7.1.0` SHA pins, `CHANGELOG.md` header contract documentation, and `workflow-templates/CHANGELOG.md` entry (v4.3.0).
+**Hardening added:** Added `test-build-release-static big-release readiness` invariant checks in `scripts/validate-templates.sh`.
+**Evidence:** all tests pass (`bash scripts/validate-templates.sh && bash scripts/preflight.sh`)
+**Commit:** `feat(templates): make the big-release path in test-build-release-static production-ready`

@@ -1,16 +1,14 @@
-active_flow: fix_bug
+active_flow: null
 active_epic: e01
 active_story: e01s03
-bug_id: BUG-2026-11-04-static-template-big-release-not-production-ready
+bug_id: null
 bigpowers_version: 2.76.1
-bug_cycle:
-  current_step: 3
-  completed_steps: [1, 2]
+bug_cycle: null
 epic_cycle:
   step: 8
   fast_mode: false
   story_bcps: 2
   audit_result: pass
 handoff:
-  context: "Investigated Issue #40 (test-build-release-static.yml big-release path gaps) and completed 4-phase RCA. Proceeding to Step 3 (develop-tdd)."
-  next_skill: develop-tdd
+  context: "Issue #40 resolved (BUG-2026-11-04-static-template-big-release-not-production-ready): workflow-templates/test-build-release-static.yml and .github/workflows/test-build-release-static.yml bumped to v4.2.0 with big-release git identity, VERSION sync step, node_version=24 default/input, release_tool=big-release default, checkout@v7.0.1 + setup-node@v7.1.0 SHA pins, CHANGELOG.md header contract docs, and validate-templates.sh gate."
+  next_skill: survey-context
