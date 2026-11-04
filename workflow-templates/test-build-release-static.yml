@@ -1,7 +1,14 @@
 name: Test Build Release
-# version: 4.1.1 — see workflow-templates/CHANGELOG.md
+# version: 4.2.0 — see workflow-templates/CHANGELOG.md
 # Reusable workflow: call with `uses: danielvm-git/.github/.github/workflows/test-build-release-static.yml@main`
 # Or copy to .github/workflows/test-build-release.yml and pair with deploy-static.yml → deploy.yml
+#
+# big-release contract (default release_tool):
+#   - Root `VERSION` file: updated post-release from the new git tag and committed with `[skip ci]`.
+#   - `CHANGELOG.md` header format: must start with `# Changelog` on line 1 followed by
+#     `## [Unreleased]` and `## [<version>]` sections (`big-release`'s changelog plugin
+#     scans for the first `## ` header after line 0; top-level `# <version>` headers
+#     silently no-op or drop entries).
 
 on:
   workflow_call:
@@ -11,11 +18,16 @@ on:
         required: false
         type: string
         default: "https://CHANGE-ME.bigbase.click"
-      release_tool:
-        description: "Release tool to run: semantic-release | big-release"
+      node_version:
+        description: "Node.js version for setup-node"
         required: false
         type: string
-        default: "semantic-release"
+        default: "24"
+      release_tool:
+        description: "Release tool to run: big-release | semantic-release"
+        required: false
+        type: string
+        default: "big-release"
   push:
     branches: [main]
   pull_request:
@@ -31,19 +43,21 @@ concurrency:
 env:
   APP_TYPE: static
   SITE_URL: ${{ inputs.site_url || 'https://CHANGE-ME.bigbase.click' }}
+  NODE_VERSION: ${{ inputs.node_version || '24' }}
+  RELEASE_TOOL: ${{ inputs.release_tool || 'big-release' }}
 
 jobs:
   test:
     runs-on: ubuntu-22.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # v6.4.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
         with:
-          node-version: 22
+          node-version: ${{ inputs.node_version || '24' }}
           cache: npm
 
       - name: Preflight
@@ -99,11 +113,11 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # v6.4.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
         with:
-          node-version: 22
+          node-version: ${{ inputs.node_version || '24' }}
           cache: npm
 
       - name: Install dependencies
@@ -137,13 +151,13 @@ jobs:
       issues: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: true
 
       - name: Run big-release
-        if: inputs.release_tool == 'big-release'
+        if: (inputs.release_tool || env.RELEASE_TOOL || 'big-release') == 'big-release'
         run: |
           curl -sL https://github.com/danielvm-git/big-release/releases/latest/download/big-release-linux-amd64 -o big-release
           chmod +x big-release
@@ -151,18 +165,38 @@ jobs:
           big-release release --verbose
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_AUTHOR_NAME: big-release-bot
+          GIT_AUTHOR_EMAIL: big-release-bot@danielvm-git.github.io
+          GIT_COMMITTER_NAME: big-release-bot
+          GIT_COMMITTER_EMAIL: big-release-bot@danielvm-git.github.io
 
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # v6.4.0
-        if: inputs.release_tool == 'semantic-release' || inputs.release_tool == ''
+      - name: Update VERSION file
+        if: (inputs.release_tool || env.RELEASE_TOOL || 'big-release') == 'big-release'
+        run: |
+          NEW_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -n "$NEW_TAG" ]; then
+            NEW_VER="${NEW_TAG#v}"
+            echo "$NEW_VER" > VERSION
+            if ! git diff --quiet VERSION; then
+              git config user.name "big-release-bot"
+              git config user.email "big-release-bot@danielvm-git.github.io"
+              git add VERSION
+              git commit -m "chore(release): update VERSION to $NEW_VER [skip ci]"
+              git push origin main
+            fi
+          fi
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        if: (inputs.release_tool || env.RELEASE_TOOL) == 'semantic-release'
         with:
-          node-version: 22
+          node-version: ${{ inputs.node_version || '24' }}
 
       - name: Install semantic-release
-        if: inputs.release_tool == 'semantic-release' || inputs.release_tool == ''
+        if: (inputs.release_tool || env.RELEASE_TOOL) == 'semantic-release'
         run: npm install --no-save semantic-release @semantic-release/changelog @semantic-release/git
 
       - name: Run semantic-release
-        if: inputs.release_tool == 'semantic-release' || inputs.release_tool == ''
+        if: (inputs.release_tool || env.RELEASE_TOOL) == 'semantic-release'
         run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

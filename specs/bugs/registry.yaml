@@ -1,0 +1,25 @@
+bugs:
+  - bug_id: BUG-2026-07-25-health-check-not-resilient-to-transient-curl-errors
+    date: "2026-07-25"
+    severity: low
+    priority: P2
+    scope: actions/bigbase-deploy
+    status: fixed
+    summary: "Health check retry loop dies on the first transient curl connection error instead of retrying"
+    file: specs/bugs/BUG-2026-07-25-health-check-not-resilient-to-transient-curl-errors.md
+  - bug_id: BUG-2026-11-04-static-template-big-release-not-production-ready
+    date: "2026-11-04"
+    severity: medium
+    priority: P1
+    scope: workflow-templates/test-build-release-static.yml
+    status: fixed
+    summary: "make the big-release path in test-build-release-static production-ready (Issue #40)"
+    file: specs/bugs/BUG-2026-11-04-static-template-big-release-not-production-ready.md
+    files_changed:
+      - workflow-templates/test-build-release-static.yml
+      - .github/workflows/test-build-release-static.yml
+      - workflow-templates/CHANGELOG.md
+      - scripts/validate-templates.sh
+    approach: "Add big-release git identity env vars, post-release VERSION sync step, node_version=24 input/default, release_tool=big-release default, checkout@v7.0.1 and setup-node@v7.1.0 SHA pins, CHANGELOG.md contract comment, and template validation gate."
+    risk_level: low
+    commit_message: "feat(templates): make the big-release path in test-build-release-static production-ready"

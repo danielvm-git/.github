@@ -1,4 +1,4 @@
-active_flow: build_epic
+active_flow: null
 active_epic: e01
 active_story: e01s03
 bug_id: null
@@ -10,5 +10,5 @@ epic_cycle:
   story_bcps: 2
   audit_result: pass
 handoff:
-  context: "e01s01 done (PR #13). e01s05 done (parallel) — scripts/generate-doc-indexes.sh, scripts/validate-docs.sh, threat model. All gaps closed. 16 workflow templates (all versioned, all with .properties.json, all passing validation). 8 scripts. CHANGELOG. Monorepo CI. Template version audit. 3 BUG files resolved (template-gaps, fleet-feedback-round2, p3-deferred)."
+  context: "Issue #40 resolved (BUG-2026-11-04-static-template-big-release-not-production-ready): workflow-templates/test-build-release-static.yml and .github/workflows/test-build-release-static.yml bumped to v4.2.0 with big-release git identity, VERSION sync step, node_version=24 default/input, release_tool=big-release default, checkout@v7.0.1 + setup-node@v7.1.0 SHA pins, CHANGELOG.md header contract docs, and validate-templates.sh gate."
   next_skill: survey-context

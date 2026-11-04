@@ -1,5 +1,27 @@
 # Workflow Template Changelog
 
+## 4.3.0 — 2026-11-04
+
+### Static template: production-ready `big-release` path (Issue #40)
+
+Brings `test-build-release-static.yml` (bumped `4.1.1 → 4.2.0`) to parity with the `bigbase-canary-*` and `big-dock-locker-site` reference setups.
+
+#### Added
+- **Git identity for `big-release`** — sets `GIT_AUTHOR_NAME`, `GIT_AUTHOR_EMAIL`, `GIT_COMMITTER_NAME`, and `GIT_COMMITTER_EMAIL` (`big-release-bot <big-release-bot@danielvm-git.github.io>`) on the `Run big-release` step so the `git` plugin can tag and commit without `exit status 128: Committer identity unknown`.
+- **Post-release `VERSION` sync step** — adds `Update VERSION file` after `Run big-release` to read the latest tag (`git describe --tags --abbrev=0`), write `VERSION`, and commit/push `chore(release): update VERSION to $NEW_VER [skip ci]`.
+- **`node_version` input (default `"24"`)** — adds `node_version` input on `workflow_call` and defaults all jobs (`test`, `build`, `release`) to Node 24.
+- **`CHANGELOG.md` header contract documentation** — documents that `big-release`'s changelog plugin requires `# Changelog` followed by `## [Unreleased]` and `## [<version>]` headers.
+
+#### Changed
+- **`release_tool` default** — defaults to `big-release` (with `env.RELEASE_TOOL` fallback so copied standalone workflows also run `big-release` out of the box).
+- **Refreshed action SHA pins** — `actions/checkout` updated to `3d3c42e5aac5ba805825da76410c181273ba90b1` (`v7.0.1`) and `actions/setup-node` to `949feb2413d6458794dcd2491c4babbbce0c15c1` (`v7.1.0`).
+
+#### Files changed
+- `workflow-templates/test-build-release-static.yml` (`4.1.1 → 4.2.0`)
+- `.github/workflows/test-build-release-static.yml` (`4.1.1 → 4.2.0`)
+
+---
+
 ## 4.2.1 — 2026-10-29
 
 ### Fix: Conventional Commits check rejected every commit on pull requests

@@ -1,0 +1,13 @@
+{
+  "defect_class": "missing-big-release-git-identity-and-version-sync",
+  "grep_pattern": "big-release release --verbose",
+  "match_count": 7,
+  "sweep_scope": "workflow-templates/test-build-release-*.yml",
+  "patched_in_pr": [
+    "workflow-templates/test-build-release-static.yml",
+    ".github/workflows/test-build-release-static.yml"
+  ],
+  "tracked_issues": [
+    "specs/big-release-option-b-gap-register.md"
+  ]
+}
