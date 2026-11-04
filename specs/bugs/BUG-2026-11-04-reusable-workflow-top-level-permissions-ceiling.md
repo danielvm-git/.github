@@ -1,6 +1,6 @@
 ---
 bug_id: BUG-2026-11-04-reusable-workflow-top-level-permissions-ceiling
-status: open
+status: fixed
 severity: high
 scope: workflow-templates/test-build-release-*.yml
 title: Reusable workflow top-level permissions block prevents release job from escalating (Issue #34)
@@ -36,11 +36,16 @@ Confirmed across all 10 `test-build-release-*.yml` files: every file has `^permi
 
 ## Acceptance Criteria
 
-- [ ] No `test-build-release-*.yml` in `workflow-templates/` or `.github/workflows/` has a top-level `^permissions:` ceiling
-- [ ] Every non-release job (`test`, `build`, `lint`, `verify`, and docs-only `release`) explicitly sets job-level `permissions: contents: read`
-- [ ] Every release job in the 8 release-capable templates retains `permissions: contents: write, issues: write, pull-requests: write`
-- [ ] `bash scripts/validate-templates.sh` and `bash scripts/preflight.sh` pass
+- [x] No `test-build-release-*.yml` in `workflow-templates/` or `.github/workflows/` has a top-level `^permissions:` ceiling
+- [x] Every non-release job (`test`, `build`, `lint`, `verify`, and docs-only `release`) explicitly sets job-level `permissions: contents: read`
+- [x] Every release job in the 8 release-capable templates retains `permissions: contents: write, issues: write, pull-requests: write`
+- [x] `bash scripts/validate-templates.sh` and `bash scripts/preflight.sh` pass
 
 ## Resolution
 
-<!-- filled in by validate-fix -->
+**Fixed:** 2026-11-04
+**Root cause confirmed:** Top-level `permissions: contents: read` in `test-build-release-*.yml` acted as a workflow ceiling under `workflow_call`, blocking `jobs.release` (`contents: write`) from escalating.
+**Fix applied:** Moved `permissions: contents: read` from the workflow root into each non-release job (`test`, `build`, `lint`, `verify`, and docs-only `release`) across all 10 `workflow-templates/test-build-release-*.yml` templates and `.github/workflows/test-build-release-*.yml` reusable mirrors, bumped patch versions, and updated `scripts/audit-workflows.sh`.
+**Hardening added:** Added `test-build-release job-scoped permissions (Issue #34)` invariant gate in `scripts/validate-templates.sh`.
+**Evidence:** all tests pass (`bash scripts/validate-templates.sh && bash scripts/preflight.sh`)
+**Commit:** `fix(templates): scope permissions per job in test-build-release workflows`

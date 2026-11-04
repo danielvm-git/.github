@@ -1,5 +1,17 @@
 # Workflow Template Changelog
 
+## 4.3.1 — 2026-11-04
+
+### Fix: Job-scoped permissions on `test-build-release-*` reusable workflows (Issue #34)
+
+Removed the workflow-level `permissions: contents: read` ceiling from all `test-build-release-*.yml` templates and `.github/workflows/test-build-release-*.yml` reusable mirrors, moving `permissions: contents: read` into each non-release job (`test`, `build`, `lint`, `verify`, and docs-only `release`). This preserves least-privilege on CI/build jobs while allowing the `release` job (`contents: write`, `issues: write`, `pull-requests: write`) to inherit write permissions from `workflow_call` callers without triggering `startup_failure`.
+
+#### Files changed
+- `workflow-templates/test-build-release-*.yml` and `.github/workflows/test-build-release-*.yml` (fullstack, go, monorepo, node, pages-mkdocs, pages-starlight, php, python, static, swift)
+- `scripts/validate-templates.sh`
+
+---
+
 ## 4.3.0 — 2026-11-04
 
 ### Static template: production-ready `big-release` path (Issue #40)

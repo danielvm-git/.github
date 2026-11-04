@@ -23,3 +23,21 @@ bugs:
     approach: "Add big-release git identity env vars, post-release VERSION sync step, node_version=24 input/default, release_tool=big-release default, checkout@v7.0.1 and setup-node@v7.1.0 SHA pins, CHANGELOG.md contract comment, and template validation gate."
     risk_level: low
     commit_message: "feat(templates): make the big-release path in test-build-release-static production-ready"
+  - bug_id: BUG-2026-11-04-reusable-workflow-top-level-permissions-ceiling
+    date: "2026-11-04"
+    severity: high
+    priority: P1
+    scope: workflow-templates/test-build-release-*.yml
+    status: fixed
+    summary: "reusable workflow top-level permissions block prevents release job from escalating (Issue #34)"
+    file: specs/bugs/BUG-2026-11-04-reusable-workflow-top-level-permissions-ceiling.md
+    files_changed:
+      - workflow-templates/test-build-release-*.yml
+      - .github/workflows/test-build-release-*.yml
+      - scripts/validate-templates.sh
+      - scripts/audit-workflows.sh
+      - workflow-templates/CHANGELOG.md
+      - specs/big-release-option-b-gap-register.md
+    approach: "Move permissions: contents: read from workflow root to each non-release job so release jobs can escalate under workflow_call."
+    risk_level: low
+    commit_message: "fix(templates): scope permissions per job in test-build-release workflows"

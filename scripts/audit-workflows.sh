@@ -31,8 +31,8 @@ check_workflow() {
   local repo="$2"
   local file_failures=0
 
-  # permissions: contents: read (workflow-level, not job-level)
-  if ! grep -q '^permissions:' "$file" 2>/dev/null; then
+  # permissions: workflow-level or job-level
+  if ! grep -qE '^\s*permissions:' "$file" 2>/dev/null; then
     echo -e "  ${RED}FAIL${NC} permissions: $repo/${file##*/}"
     ((file_failures++)) || true
   fi

@@ -1,5 +1,5 @@
 name: Test Build Release
-# version: 4.1.1 — see workflow-templates/CHANGELOG.md
+# version: 4.1.2 — see workflow-templates/CHANGELOG.md
 # Reusable workflow: call with `uses: danielvm-git/.github/.github/workflows/test-build-release-php.yml@main`
 # Or copy to .github/workflows/test-build-release.yml and pair with deploy-php.yml → deploy.yml
 # First PHP template — proven green against bigbase-canary-php (2026-07-25), the first
@@ -23,8 +23,6 @@ on:
   pull_request:
     branches: [main]
 
-permissions:
-  contents: read
 
 concurrency:
   group: pipeline-${{ github.workflow }}-${{ github.ref }}
@@ -39,6 +37,8 @@ jobs:
   test:
     runs-on: ubuntu-22.04
     timeout-minutes: 15
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
@@ -96,6 +96,8 @@ jobs:
     needs: [test]
     runs-on: ubuntu-22.04
     timeout-minutes: 15
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
 

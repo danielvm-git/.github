@@ -77,6 +77,7 @@ what each repo must resolve before it can adopt the reusable workflow.
 
 ## Central template gaps (repo-agnostic)
 
+- Workflow permission model — **Resolved (#34)**: moved `permissions: contents: read` from workflow top-level to job-level (`test`, `build`, `lint`, `verify`) across all `test-build-release-*.yml` templates and `.github/workflows/` mirrors so `release` jobs can escalate to `contents: write` under `workflow_call`.
 - Add `release_tool` input wiring end-to-end (template already declares it for
   `test-build-release-python.yml`).
 - Fold the CC/AI-attribution `merge-base --is-ancestor` hardening into the shared checks.

@@ -1,5 +1,5 @@
 name: Test Build Release
-# version: 4.1.1 — see workflow-templates/CHANGELOG.md
+# version: 4.1.2 — see workflow-templates/CHANGELOG.md
 # Reusable workflow: call with `uses: danielvm-git/.github/.github/workflows/test-build-release-pages-mkdocs.yml@main`
 # Or copy to .github/workflows/test-build-release.yml and pair with deploy-pages-mkdocs.yml → deploy.yml
 
@@ -16,8 +16,6 @@ on:
   pull_request:
     branches: [main]
 
-permissions:
-  contents: read
 
 concurrency:
   group: pipeline-${{ github.workflow }}-${{ github.ref }}
@@ -27,6 +25,8 @@ jobs:
   test:
     runs-on: ubuntu-22.04
     timeout-minutes: 10
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
@@ -78,6 +78,8 @@ jobs:
     needs: [test]
     runs-on: ubuntu-22.04
     timeout-minutes: 10
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
 
@@ -103,6 +105,8 @@ jobs:
     needs: [build]
     runs-on: ubuntu-22.04
     timeout-minutes: 5
+    permissions:
+      contents: read
     steps:
       - name: No version bump for docs
         run: echo "no version bump for docs"
