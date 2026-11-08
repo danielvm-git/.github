@@ -10,30 +10,9 @@ SvelteKit is the official application framework for Svelte. It provides a unifie
 
 ## Build status
 
-```yaml
-# .github/workflows/ci.yml
-name: CI
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+[![Test Build Release](https://github.com/YOUR_ORG/YOUR_REPO/actions/workflows/test-build-release.yml/badge.svg)](https://github.com/YOUR_ORG/YOUR_REPO/actions)
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-      - run: pnpm install
-      - run: pnpm lint
-      - run: pnpm check
-      - run: pnpm test
-      - run: pnpm build
-```
+The badge tracks `.github/workflows/test-build-release.yml`, copied from the matching `workflow-templates/test-build-release-<stack>.yml` (with `deploy.yml` beside it). See `docs/how-to/start-new-project.md` §4 in `danielvm-git/.github`.
 
 ## Code style
 
@@ -179,6 +158,18 @@ export const actions: Actions = {
   },
 };
 ```
+
+## Commands
+
+| Action | Command |
+|--------|---------|
+| Run | `pnpm dev` |
+| Test | `pnpm vitest run` |
+| Build | `pnpm build` |
+| Lint | `pnpm lint` |
+| Preflight | `pnpm lint && pnpm vitest run && pnpm build` |
+
+Run `Preflight` before any forward work. It must be green before you branch or merge.
 
 ## Installation
 

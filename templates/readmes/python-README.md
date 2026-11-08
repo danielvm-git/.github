@@ -10,33 +10,9 @@ Python's ecosystem — from scientific computing to web APIs — thrives on read
 
 ## Build status
 
-![CI](https://github.com/your-org/your-repo/workflows/CI/badge.svg)
+[![Test Build Release](https://github.com/YOUR_ORG/YOUR_REPO/actions/workflows/test-build-release.yml/badge.svg)](https://github.com/YOUR_ORG/YOUR_REPO/actions)
 
-```yaml
-# .github/workflows/ci.yml
-name: CI
-on: [push, pull_request]
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12", "3.13"]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - run: python -m pip install --upgrade pip
-      - run: pip install -e ".[dev]"
-      - run: ruff check .
-      - run: pytest --cov --cov-report=term-missing
-```
-
-| Branch | Status |
-|--------|--------|
-| `main` | ✅ Passing |
-| `develop` | 🟡 In progress |
+The badge tracks `.github/workflows/test-build-release.yml`, copied from the matching `workflow-templates/test-build-release-<stack>.yml` (with `deploy.yml` beside it). See `docs/how-to/start-new-project.md` §4 in `danielvm-git/.github`.
 
 ---
 
@@ -140,6 +116,20 @@ if __name__ == "__main__":
     # Hello, Python!
     # Hello, Ruff!
 ```
+
+---
+
+## Commands
+
+| Action | Command |
+|--------|---------|
+| Run | `python -m PACKAGE_NAME` |
+| Test | `pytest` |
+| Build | `python -m build` |
+| Lint | `ruff check . && ruff format --check . && mypy .` |
+| Preflight | `ruff check . && ruff format --check . && mypy . && pytest` |
+
+Run `Preflight` before any forward work. It must be green before you branch or merge.
 
 ---
 

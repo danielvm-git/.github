@@ -8,7 +8,7 @@ If you're starting a new project: run `bigpowers setup` first (methodology, spec
 
 | You want to... | Go to |
 |---|---|
-| Set up CI/CD for a new project | `workflow-templates/` — pick a `ci-cd-<language>.yml` template (Node, Python, Go, Static, Swift, Monorepo) |
+| Set up CI/CD for a new project | `workflow-templates/` — copy the `test-build-release-<stack>.yml` + `deploy-<stack>.yml` pair to `.github/workflows/test-build-release.yml` + `deploy.yml` (see `docs/how-to/start-new-project.md` §4) |
 | Deploy to bigbase.click | `actions/bigbase-deploy/` + `docs/reference/contracts/bigbase-deploy-contract.md` |
 | Write a README | `templates/readmes/<stack>-README.md` |
 | Understand a past decision | `docs/explanation/` |
@@ -26,26 +26,26 @@ If you're starting a new project: run `bigpowers setup` first (methodology, spec
 - `brand/` — pointer to `brand_identity_danielvm`, not a copy
 - `scripts/` — portfolio-wide audit tooling
 
-## Deploy from the command line
+## How deploys run
 
 Deploys run inside a GitHub Actions workflow through the shared [`bigbase-deploy`](actions/bigbase-deploy/) composite action. The action takes a scoped deploy token, masks it, `POST`s to `https://bigbase.click/api/sites/<site_id>/deploy`, then retries a health check (8× / 10s) against `site_url` until it returns 200/301/302. See the [bigbase-deploy contract](docs/reference/contracts/bigbase-deploy-contract.md) for required secrets and `app_type` values.
 
-You don't have to merge to ship — any workflow that calls `bigbase-deploy` **and** declares `workflow_dispatch:` can be run on demand from the CLI. All `ci-cd-*.yml` templates include this by default.
+Deploys are not triggered by hand. In the canonical layout, `deploy.yml` runs on `workflow_run` of the `Test Build Release` pipeline and deploys only when that run succeeded on `main`. To ship, merge to `main`. To redeploy the same commit, re-run the last successful pipeline run on `main`.
 
 ### Prerequisites
 
 - `BIGBASE_SITE_ID` and `BIGBASE_DEPLOY_TOKEN` secrets set on the repo — the token is scoped to one site, provisioned via `bigbase_provision_ci_credentials`; never use account email/password.
-- `SITE_URL` set in the workflow (the bigbase-deploy action health-checks this).
-- The branch you want live is pushed to the remote.
+- `SITE_URL` set in `deploy.yml` (the `Health check` step checks this URL).
 
-### Trigger a deploy
+### Redeploy the current `main`
 
 ```bash
-# From inside the project repo, on the branch you want to ship:
-gh workflow run ci-cd-static.yml --ref main
+# From inside the project repo:
+RUN_ID=$(gh run list --workflow test-build-release.yml --branch main --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+gh run rerun "$RUN_ID"
 ```
 
-`gh workflow run` accepts the workflow file name (shown), its `name:` (e.g. `"CI/CD"`), or its ID. These templates read everything from secrets/env, so no `--field` inputs are needed.
+When the re-run completes, it fires `workflow_run` again and `deploy.yml` deploys.
 
 ### Watch it
 

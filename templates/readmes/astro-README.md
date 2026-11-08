@@ -10,24 +10,9 @@ Astro delivers the fastest possible frontend by shipping zero client JavaScript 
 
 ## Build status
 
-```yaml
-# .github/workflows/deploy.yml
-name: Deploy
-on: [push]
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - run: npm ci
-      - run: npm run build
-      - run: npm run astro check
-```
+[![Test Build Release](https://github.com/YOUR_ORG/YOUR_REPO/actions/workflows/test-build-release.yml/badge.svg)](https://github.com/YOUR_ORG/YOUR_REPO/actions)
 
-[![CI](https://github.com/user/repo/actions/workflows/deploy.yml/badge.svg)](https://github.com/user/repo/actions/workflows/deploy.yml)
+The badge tracks `.github/workflows/test-build-release.yml`, copied from the matching `workflow-templates/test-build-release-<stack>.yml` (with `deploy.yml` beside it). See `docs/how-to/start-new-project.md` §4 in `danielvm-git/.github`.
 
 ## Code style
 
@@ -61,7 +46,7 @@ jobs:
 - [Adapter: Vercel](https://docs.astro.build/en/guides/deploy/vercel/) — edge / serverless deployment
 - [Adapter: Netlify](https://docs.astro.build/en/guides/deploy/netlify/) — Netlify Functions + SSR
 - [Adapter: Node](https://docs.astro.build/en/guides/deploy/node/) — standalone Node.js server
-- **Adapter: Static** — output to `dist/`, deploy to BigBase via `ci-cd-static.yml` (see `danielvm-git/.github/actions/bigbase-deploy`)
+- **Adapter: Static** — output to `dist/`, deploy to BigBase via the `test-build-release.yml` + `deploy.yml` pair (from `test-build-release-static.yml` + `deploy-static.yml`) (see `danielvm-git/.github/actions/bigbase-deploy`)
 
 ## Features
 
@@ -106,6 +91,20 @@ const { Content } = await post.render()
 ```
 
 The `LikeButton` above is a server island — it renders on the server and streams in as a lightweight interactive widget, without blocking the static article content.
+
+## Commands
+
+| Action | Command |
+|--------|---------|
+| Run | `npm run dev` |
+| Test | `npx vitest run` |
+| Build | `npm run build` |
+| Lint | `npx astro check` |
+| Preflight | `npx astro check && npx vitest run && npm run build` |
+
+Run `Preflight` before any forward work. It must be green before you branch or merge.
+
+---
 
 ## Installation
 

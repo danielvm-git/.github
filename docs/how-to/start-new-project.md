@@ -83,39 +83,12 @@ Choose the correct workflow template pair for your stack from `workflow-template
 | Static site | `test-build-release-static.yml` | `deploy-static.yml` |
 | PHP | `test-build-release-php.yml` | `deploy-php.yml` |
 | Monorepo | `test-build-release-monorepo.yml` | `deploy-monorepo.yml` |
+| Fullstack | `test-build-release-fullstack.yml` | `deploy-fullstack.yml` |
 | Swift | `test-build-release-swift.yml` | *(no deploy yet)* |
 | MkDocs | `test-build-release-pages-mkdocs.yml` | `deploy-pages-mkdocs.yml` |
 | Starlight | `test-build-release-pages-starlight.yml` | `deploy-pages-starlight.yml` |
 
-**Option A — Reusable workflow (recommended):** call templates directly from your repo's workflow:
-
-```yaml
-# .github/workflows/ci-cd.yml
-name: CI/CD
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
-jobs:
-  ci:
-    uses: danielvm-git/.github/.github/workflows/test-build-release-node.yml@v2
-    with:
-      site_url: "https://my-app.bigbase.click"
-    secrets: inherit
-
-  deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: ci
-    uses: danielvm-git/.github/.github/workflows/deploy-node.yml@v2
-    with:
-      site_url: "https://my-app.bigbase.click"
-      ci_run_id: ${{ github.run_id }}
-    secrets: inherit
-```
-
-**Option B — Copy-once (legacy):** copy templates into `.github/workflows/`:
+Copy the pair into `.github/workflows/`, renaming each file to the canonical name:
 
 ```bash
 mkdir -p .github/workflows
@@ -123,11 +96,16 @@ cp /path/to/.github/workflow-templates/test-build-release-node.yml .github/workf
 cp /path/to/.github/workflow-templates/deploy-node.yml .github/workflows/deploy.yml
 ```
 
+This copy-once pair is the portfolio pattern for every repo:
+
+- `test-build-release.yml` runs on push and pull request. It tests, builds, releases, and uploads the `deploy-meta` artifact.
+- `deploy.yml` runs on `workflow_run` of the pipeline. Its job runs only when `github.event.workflow_run.conclusion == 'success'` and `github.event.workflow_run.head_branch == 'main'`.
+
+Do not add a thin `ci-cd.yml` that calls the reusable workflows in `.github/workflows/` of this repo. That layout is not the pattern, and Grimoire's `ci-layout` conformance rule flags it.
+
 ### 5. Wire bigbase-deploy
 
-If using **Option A** (reusable workflows), the deploy template already includes `bigbase-deploy`. Just set the required secrets in your repo settings.
-
-If using **Option B** (copy-once), the copied `deploy.yml` already references `bigbase-deploy`. Set the required secrets in your repo settings.
+The copied `deploy.yml` already calls `bigbase-deploy`. Set the required secrets in your repo settings.
 
 Provision deploy credentials:
 
@@ -174,15 +152,10 @@ ls -la CLAUDE.md GEMINI.md
 Choose the correct README template for your stack and customize:
 
 ```bash
-cp /path/to/.github/templates/readmes/README-monorepo.md README.md
+cp /path/to/.github/templates/readmes/typescript-README.md README.md
 ```
 
-Available stack variants:
-- `README-monorepo.md` — Node.js monorepo
-- `README-python.md` — Python project
-- `README-swift.md` — Swift project
-- `README-rust.md` — Rust project
-- `README-frontend.md` — Frontend web app
+Available stack variants in `templates/readmes/`: `astro`, `game`, `generic`, `go`, `python`, `rust`, `shell`, `sveltekit`, `swift`, `typescript`, `vue` (each `<stack>-README.md`), plus `template-README.md` as a bare skeleton. Every variant has a `Commands` table with a `Preflight` row, and a build badge on `test-build-release.yml`.
 
 ### 9. Push and verify CI
 

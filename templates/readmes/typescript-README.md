@@ -8,11 +8,9 @@ TypeScript brings static typing to Node.js, catching entire classes of bugs at c
 
 ## Build status
 
-```markdown
-[![CI](https://github.com/OWNER/REPO/workflows/CI/badge.svg)](https://github.com/OWNER/REPO/actions)
-```
+[![Test Build Release](https://github.com/YOUR_ORG/YOUR_REPO/actions/workflows/test-build-release.yml/badge.svg)](https://github.com/YOUR_ORG/YOUR_REPO/actions)
 
-Runs `tsc --noEmit` for type checking, `vitest run` for tests, and `eslint src/` for lint on every push and PR.
+The badge tracks `.github/workflows/test-build-release.yml`, copied from the matching `workflow-templates/test-build-release-<stack>.yml` (with `deploy.yml` beside it). See `docs/how-to/start-new-project.md` §4 in `danielvm-git/.github`.
 
 ## Code style
 
@@ -86,6 +84,18 @@ app.post('/users', async (c) => {
 
 export default app;
 ```
+
+## Commands
+
+| Action | Command |
+|--------|---------|
+| Run | `pnpm dev` |
+| Test | `pnpm vitest run` |
+| Build | `pnpm build` |
+| Lint | `pnpm tsc --noEmit && pnpm eslint src/` |
+| Preflight | `pnpm tsc --noEmit && pnpm eslint src/ && pnpm vitest run && pnpm build` |
+
+Run `Preflight` before any forward work. It must be green before you branch or merge.
 
 ## Installation
 

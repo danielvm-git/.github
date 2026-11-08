@@ -10,25 +10,9 @@ Swift is a fast, safe, and expressive language for Apple platforms and beyond. T
 
 ## Build status
 
-![CI](https://github.com/your-org/your-repo/workflows/CI/badge.svg)
+[![Test Build Release](https://github.com/YOUR_ORG/YOUR_REPO/actions/workflows/test-build-release.yml/badge.svg)](https://github.com/YOUR_ORG/YOUR_REPO/actions)
 
-```yaml
-# .github/workflows/ci.yml
-name: CI
-on: [push, pull_request]
-jobs:
-  build:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: swift --version
-      - run: swift test --enable-code-coverage
-```
-
-| Branch | Status |
-|--------|--------|
-| `main` | ✅ Passing |
-| `develop` | 🟡 In progress |
+The badge tracks `.github/workflows/test-build-release.yml`, copied from the matching `workflow-templates/test-build-release-<stack>.yml` (with `deploy.yml` beside it). See `docs/how-to/start-new-project.md` §4 in `danielvm-git/.github`.
 
 ---
 
@@ -112,6 +96,20 @@ public struct TapCounter: View {
     }
 }
 ```
+
+---
+
+## Commands
+
+| Action | Command |
+|--------|---------|
+| Run | `swift run` |
+| Test | `swift test --parallel` |
+| Build | `swift build` |
+| Lint | `swiftlint` |
+| Preflight | `swiftlint && swift test && swift build` |
+
+Run `Preflight` before any forward work. It must be green before you branch or merge.
 
 ---
 
