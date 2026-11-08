@@ -46,24 +46,24 @@ See [Branch Protection Rules](branch-protection-rules.md) for the full baseline 
 
 ## CI/CD templates
 
-Select the template matching your project's primary stack. Templates are maintained in `workflow-templates/` and inherited via the `.github` template layer.
+Every repo copies one pair from `workflow-templates/` into `.github/workflows/`: `test-build-release-<stack>.yml` becomes `test-build-release.yml` (runs on push and pull request), and `deploy-<stack>.yml` becomes `deploy.yml` (runs on `workflow_run` of `Test Build Release`, job gated on `conclusion == 'success'` and `head_branch == 'main'`). A thin `ci-cd.yml` that calls reusable workflows is not the pattern.
 
-| Project type | Template | Features |
-|-------------|----------|----------|
-| Node.js / TypeScript monorepo | `ci-cd-monorepo.yml` | Lint, typecheck, test, build, deploy |
-| Python application | `ci-cd-python.yml` | Lint, test, build, deploy |
-| Swift application | `ci-cd-swift.yml` | Lint, test, build, deploy |
-| Rust application | `ci-cd-rust.yml` | Lint, test, build, deploy |
-| JavaScript library | `ci-js.yml` | Lint, test, publish |
-| JavaScript static site | `ci-cd-pages-js.yml` | Lint, build, deploy to GitHub Pages |
-| Python static site | `ci-cd-pages-python.yml` | Lint, build, deploy to GitHub Pages |
-| Swift static site | `ci-cd-pages-swift.yml` | Lint, build, deploy to GitHub Pages |
-| Code quality (all repos) | `codeql-javascript.yml` | CodeQL analysis (added via security tab) |
+| Stack | Pipeline template | Deploy template |
+|-------|-------------------|-----------------|
+| Node.js / TypeScript | `test-build-release-node.yml` | `deploy-node.yml` |
+| Python | `test-build-release-python.yml` | `deploy-python.yml` |
+| Go | `test-build-release-go.yml` | `deploy-go.yml` |
+| Static site | `test-build-release-static.yml` | `deploy-static.yml` |
+| PHP | `test-build-release-php.yml` | `deploy-php.yml` |
+| Monorepo | `test-build-release-monorepo.yml` | `deploy-monorepo.yml` |
+| Fullstack | `test-build-release-fullstack.yml` | `deploy-fullstack.yml` |
+| Swift | `test-build-release-swift.yml` | *(no deploy)* |
+| Godot | `test-build-release-godot.yml` | *(no deploy)* |
+| MkDocs docs site | `test-build-release-pages-mkdocs.yml` | `deploy-pages-mkdocs.yml` |
+| Starlight docs site | `test-build-release-pages-starlight.yml` | `deploy-pages-starlight.yml` |
+| Code scanning (all repos) | `codeql.yml` or `codeql-javascript.yml` | — |
 
-All templates include:
-- `concurrency` group to cancel stale runs
-- `timeout-minutes: 10` to prevent runaway jobs
-- Pinned runner versions (`actions/checkout@v4`, etc.)
+All templates set a `concurrency` group (`cancel-in-progress: true` on the pipeline, `false` on deploy), `timeout-minutes` on every job, `runs-on: ubuntu-22.04` (Swift uses macOS), and pin every action to a full 40-character commit SHA.
 
 See [Start a New Project](../how-to/start-new-project.md) for step-by-step CI wiring.
 
@@ -89,7 +89,7 @@ See [BigBase Deploy Contract](contracts/bigbase-deploy-contract.md) for the full
 | Branches | `type/slug` | `feat/add-auth`, `fix/null-pointer` |
 | Commits | Conventional Commits | `feat: add login endpoint` |
 | Doc filenames | kebab-case, Akita-grep-unique | `guard-git-safety-hooks.md` (not `git-safety-hooks.md`) |
-| Workflow files | kebab-case | `ci-cd-monorepo.yml` |
+| Workflow files | kebab-case | `test-build-release.yml` |
 | Action names | kebab-case | `bigbase-deploy` |
 | Secrets | UPPER_SNAKE_CASE | `BIGBASE_DEPLOY_TOKEN` |
 | Environment variables | UPPER_SNAKE_CASE | `NODE_ENV=production` |

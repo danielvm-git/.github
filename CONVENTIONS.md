@@ -20,7 +20,7 @@ Format: `<type>(<scope>): <description>`
 - `Co-Authored-By:` footer
 - Any spelling or casing variant of the above
 
-Enforced by: pre-tool-use hook (blocks at `git commit`), `scripts/land-branch.sh` (blocks at merge), CI (verify job in `ci-cd-*.yml` templates, `check-conventional-commits.sh`).
+Enforced by: pre-tool-use hook (blocks at `git commit`), `scripts/land-branch.sh` (blocks at merge), CI (`Check no AI agent attribution` step in the `test-build-release-*.yml` templates, `check-conventional-commits.sh`).
 
 Rationale: AI agents are tools, not collaborators. Attribution footers distort contribution metrics, confuse `git blame`, and violate the single-author model of solo-local workflow.
 
@@ -47,9 +47,11 @@ If `yamllint` isn't installed: `pip install yamllint` (or skip — template repo
 
 ## CI
 
-This repo uses its own `ci-cd-monorepo.yml` template:
-- ShellCheck on all `.sh` files
-- YAML lint on workflow templates
+This repo dogfoods its checks in `.github/workflows/`:
+- `ci.yml` — ShellCheck on all `.sh` files, YAML lint on workflow templates
+- `test-build-release.yml` — `scripts/validate-templates.sh` and `scripts/preflight.sh`
+
+Every other repo uses the copy-once pair `test-build-release.yml` + `deploy.yml` (see `docs/reference/portfolio-standards.md` § CI/CD templates).
 
 ## Agent Rules
 

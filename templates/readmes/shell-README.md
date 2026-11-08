@@ -12,10 +12,9 @@ Shell scripts glue systems together. Most grow from a one-liner into an unmainta
 
 ## Build status
 
-[![ShellCheck](https://img.shields.io/badge/ShellCheck-passing-brightgreen)](https://www.shellcheck.net/)
-[![CI](https://github.com/youruser/projectname/actions/workflows/ci.yml/badge.svg)](https://github.com/youruser/projectname/actions)
+[![Test Build Release](https://github.com/YOUR_ORG/YOUR_REPO/actions/workflows/test-build-release.yml/badge.svg)](https://github.com/YOUR_ORG/YOUR_REPO/actions)
 
-ShellCheck is run on every push via GitHub Actions. The `master` branch must pass `shellcheck --severity=style` before merge.
+The badge tracks `.github/workflows/test-build-release.yml`, copied from the matching `workflow-templates/test-build-release-<stack>.yml` (with `deploy.yml` beside it). See `docs/how-to/start-new-project.md` §4 in `danielvm-git/.github`.
 
 ## Code style
 
@@ -156,6 +155,17 @@ main() {
 
 main "$@"
 ```
+
+## Commands
+
+| Action | Command |
+|--------|---------|
+| Run | `./projectname --help` |
+| Test | `bats tests/` |
+| Lint | `shellcheck --severity=style *.sh` |
+| Preflight | `shellcheck --severity=style *.sh && bats tests/` |
+
+Run `Preflight` before any forward work. It must be green before you branch or merge.
 
 ## Installation
 

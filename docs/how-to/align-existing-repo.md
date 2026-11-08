@@ -37,8 +37,9 @@ Use `templates/readmes/` for stack-specific sections. If your stack isn't listed
 
 ### 3. CI/CD workflow **(P0)**
 
-- [ ] **Reusable workflow (v4.0+):** `.github/workflows/ci-cd.yml` calls `danielvm-git/.github/.github/workflows/<template>@v2` with `secrets: inherit` (see [start-new-project](start-new-project.md#4-select-and-wire-cicd-workflow))
-- [ ] **Or copy-once (legacy):** workflows live at `.github/workflows/test-build-release.yml` + `deploy.yml` (copy from `workflow-templates/` pair; see [migration plan](migrate-ci-cd/migration-plan.md))
+- [ ] **Copy-once pair (canonical):** `.github/workflows/test-build-release.yml` + `.github/workflows/deploy.yml`, copied from the matching `workflow-templates/` pair (see [start-new-project](start-new-project.md#4-select-and-wire-cicd-workflow) and the [migration plan](migrate-ci-cd/migration-plan.md))
+- [ ] `deploy.yml` triggers on `workflow_run` of the pipeline (`workflows: ["Test Build Release"]`, `types: [completed]`) and its job is gated on `github.event.workflow_run.conclusion == 'success'` and `github.event.workflow_run.head_branch == 'main'`
+- [ ] No thin `ci-cd.yml` that only calls reusable workflows — that layout is not the portfolio pattern; replace it with the pair
 - [ ] Template stack matches project: `test-build-release-{node,python,go,static,swift,monorepo,php}.yml` (+ matching `deploy-*.yml` except Swift/CLI)
 - [ ] For docs sites: `test-build-release-pages-{mkdocs,starlight}.yml` + matching `deploy-pages-*.yml`
 - [ ] Actions pinned per `docs/explanation/github-actions-best-practices.md` tier:

@@ -5,10 +5,10 @@ A little info about your project and/ or overview that explains **what** the pro
 A short description of the motivation behind the creation and maintenance of the project. This should explain **why** the project exists.
 
 ## Build status
-Build status of continus integration i.e. travis, appveyor etc. Ex. - 
 
-[![Build Status](https://travis-ci.org/akashnimare/foco.svg?branch=master)](https://travis-ci.org/akashnimare/foco)
-[![Windows Build Status](https://ci.appveyor.com/api/projects/status/github/akashnimare/foco?branch=master&svg=true)](https://ci.appveyor.com/project/akashnimare/foco/branch/master)
+[![Test Build Release](https://github.com/YOUR_ORG/YOUR_REPO/actions/workflows/test-build-release.yml/badge.svg)](https://github.com/YOUR_ORG/YOUR_REPO/actions)
+
+The badge tracks `.github/workflows/test-build-release.yml`, copied from the matching `workflow-templates/test-build-release-<stack>.yml` (with `deploy.yml` beside it). See `docs/how-to/start-new-project.md` §4 in `danielvm-git/.github`.
 
 ## Code style
 If you're using any code style like xo, standard etc. That will help others while contributing to your project. Ex. -
@@ -37,12 +37,17 @@ Provide step by step series of examples and explanations about how to get a deve
 
 Depending on the size of the project, if it is small and simple enough the reference docs can be added to the README. For medium size to larger projects it is important to at least provide a link to where the API reference docs live.
 
-## Preflight
-Run before any forward work:
-```bash
-# Full local verification — must be green before branching or merging
-<preflight command>
-```
+## Commands
+
+| Action | Command |
+|--------|---------|
+| Run | `<run command>` |
+| Test | `<test command>` |
+| Build | `<build command>` |
+| Lint | `<lint command>` |
+| Preflight | `<test && lint && build>` |
+
+Run `Preflight` before any forward work. It must be green before you branch or merge.
 
 ## Tests
 Describe and show how to run the tests with code examples.

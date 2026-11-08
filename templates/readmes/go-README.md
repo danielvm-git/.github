@@ -8,24 +8,9 @@ Go's standard tooling produces static binaries, but spinning up a well-structure
 
 ## Build status
 
-[![Go](https://github.com/yourorg/yourrepo/actions/workflows/go.yml/badge.svg)](https://github.com/yourorg/yourrepo/actions/workflows/go.yml)
+[![Test Build Release](https://github.com/YOUR_ORG/YOUR_REPO/actions/workflows/test-build-release.yml/badge.svg)](https://github.com/YOUR_ORG/YOUR_REPO/actions)
 
-```yaml
-# .github/workflows/go.yml
-name: Go
-on: [push, pull_request]
-jobs:
-  ci:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: "1.23"
-      - run: go build ./cmd/...
-      - run: go test -v -race -count=1 ./...
-      - run: make lint
-```
+The badge tracks `.github/workflows/test-build-release.yml`, copied from the matching `workflow-templates/test-build-release-<stack>.yml` (with `deploy.yml` beside it). See `docs/how-to/start-new-project.md` §4 in `danielvm-git/.github`.
 
 ## Code style
 
@@ -113,6 +98,18 @@ func main() {
  }
 }
 ```
+
+## Commands
+
+| Action | Command |
+|--------|---------|
+| Run | `go run ./cmd/...` |
+| Test | `go test -race ./...` |
+| Build | `go build ./cmd/...` |
+| Lint | `make lint` |
+| Preflight | `make lint && go test -race ./... && go build ./cmd/...` |
+
+Run `Preflight` before any forward work. It must be green before you branch or merge.
 
 ## Installation
 

@@ -10,9 +10,9 @@ MyGame — A [Godot/Unity/Unreal] game about [one-line description].
 
 ## Build status
 
-```markdown
-[![CI](https://github.com/YOUR_ORG/YOUR_REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_ORG/YOUR_REPO/actions/workflows/ci.yml)
-```
+[![Test Build Release](https://github.com/YOUR_ORG/YOUR_REPO/actions/workflows/test-build-release.yml/badge.svg)](https://github.com/YOUR_ORG/YOUR_REPO/actions)
+
+The badge tracks `.github/workflows/test-build-release.yml`, copied from the matching `workflow-templates/test-build-release-<stack>.yml` (with `deploy.yml` beside it). See `docs/how-to/start-new-project.md` §4 in `danielvm-git/.github`.
 
 ---
 
@@ -75,6 +75,7 @@ godot --path .
 | Test | `godot --headless --path . -s addons/gut/gut_cmdln.gd` |
 | Run | `godot --path .` |
 | Export | See `export_presets.cfg` |
+| Preflight | `gdlint game/ && godot --headless --path . -s addons/gut/gut_cmdln.gd` |
 
 ---
 

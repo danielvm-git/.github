@@ -10,11 +10,9 @@ Vue 3's Composition API unlocks scalable logic reuse without mixin collisions. C
 
 ## Build status
 
-```markdown
-[![Vue CI](https://github.com/YOUR_ORG/YOUR_REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_ORG/YOUR_REPO/actions/workflows/ci.yml)
-```
+[![Test Build Release](https://github.com/YOUR_ORG/YOUR_REPO/actions/workflows/test-build-release.yml/badge.svg)](https://github.com/YOUR_ORG/YOUR_REPO/actions)
 
-GitHub Actions runs `pnpm typecheck`, `pnpm lint`, and `pnpm test` on every push.
+The badge tracks `.github/workflows/test-build-release.yml`, copied from the matching `workflow-templates/test-build-release-<stack>.yml` (with `deploy.yml` beside it). See `docs/how-to/start-new-project.md` §4 in `danielvm-git/.github`.
 
 ---
 
@@ -122,6 +120,20 @@ function increment(): void {
 
 ---
 
+## Commands
+
+| Action | Command |
+|--------|---------|
+| Run | `pnpm dev` |
+| Test | `pnpm test` |
+| Build | `pnpm build` |
+| Lint | `pnpm typecheck && pnpm lint` |
+| Preflight | `pnpm typecheck && pnpm lint && pnpm test && pnpm build` |
+
+Run `Preflight` before any forward work. It must be green before you branch or merge.
+
+---
+
 ## Installation
 
 ```bash
@@ -197,7 +209,7 @@ pnpm test:coverage # with coverage report
 6. **Lint**: `pnpm lint`
 7. **Test**: `pnpm test`
 8. **Build**: `pnpm build` — outputs to `dist/`
-9. **Deploy**: Push to `main` — CI deploys to BigBase via `ci-cd-static.yml`
+9. **Deploy**: Push to `main` — CI deploys to BigBase via the `test-build-release.yml` + `deploy.yml` pair (from `test-build-release-static.yml` + `deploy-static.yml`)
 
 ---
 

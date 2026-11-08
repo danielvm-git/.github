@@ -4,9 +4,9 @@
 # in .github/workflow-templates/. Reports outdated or missing templates.
 # Usage: bash scripts/audit-template-versions.sh [--repo-pattern "big-*"]
 #
-# v4.0.0+: consumers may use reusable workflows (`uses: danielvm-git/.github/.github/workflows/<name>@v2`)
-# instead of copied files. This script currently only checks copied files with `# version:` headers.
-# A future enhancement should also detect `uses:` references and compare against the tagged version.
+# Canonical layout: repos copy the pair to .github/workflows/test-build-release.yml + deploy.yml.
+# This script only matches files that keep the template's own name, so it does not yet see
+# those renamed copies. A future enhancement should map them back to their template.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -38,7 +38,7 @@ MISMATCH=0
 MISSING_TEMPLATES=0
 
 for repo in $REPOS; do
-  ((TOTAL++))
+  TOTAL=$((TOTAL + 1))
   
   REPO_DIR="/tmp/template-audit/$repo"
   if [ ! -d "$REPO_DIR" ]; then
@@ -58,7 +58,7 @@ for repo in $REPOS; do
     
     if [ "$repo_version" != "$canonical_version" ]; then
       echo "MISMATCH: $repo — $tmpl_name (repo: $repo_version, canonical: $canonical_version)"
-      ((MISMATCH++))
+      MISMATCH=$((MISMATCH + 1))
     fi
   done
 done
@@ -70,7 +70,7 @@ echo "Portfolio: $TOTAL repos scanned, $MISMATCH version mismatches"
 rm -rf /tmp/template-audit
 
 if [ "$MISMATCH" -gt 0 ]; then
-  echo "Run 'bash scripts/align-existing-repo.sh <repo>' to upgrade."
+  echo "Re-copy the test-build-release.yml + deploy.yml pair per docs/how-to/align-existing-repo.md."
   exit 1
 fi
 
