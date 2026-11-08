@@ -1,3 +1,20 @@
+## 4.4.1 — 2026-11-08
+
+### Fix: Template P0 violations; canonical layout is the copy-once pair
+
+The owner decision of 2026-11-08: every repo uses the copy-once pair `test-build-release.yml` + `deploy.yml`. `deploy.yml` runs on `workflow_run` of the pipeline, gated on `conclusion == 'success'` and `head_branch == 'main'`. A thin `ci-cd.yml` that calls reusable workflows is not the pattern. Docs and README templates now say so.
+
+#### Fixed
+- **`codeql.yml` 2.0.1, `codeql-javascript.yml` 1.0.1** — `github/codeql-action/{init,analyze}` pinned to the `v3.39.3` commit SHA; `actions/checkout` pinned to the `v7.0.0` commit SHA (template and mirror).
+- **`deploy-fullstack.yml` 4.1.1** — `bigbase-deploy` pinned to the `v1` commit SHA (was `@main`), built-in check skipped with `skip_health_check: true`, and a separate `Health check` step added that honours `health_check_expected_body` (template and mirror).
+- **`.github/workflows/template-drift-audit.yml`** — the audit exit code is captured inside `if`, so a failing audit no longer ends the step under `bash -e` before the issue is created; `gh issue update` (not a command) is now `gh issue edit`.
+- **`scripts/audit-template-versions.sh`** — `((TOTAL++))` returned 1 on the first repo and ended the script under `set -e`; counters now use `$((x + 1))`.
+
+#### Removed
+- **`scripts/migration-check.py`** — counted `ci-cd-*` files as migrated and `deploy.yml` as old, the inverse of the canonical layout. Grimoire's `ci-layout` conformance rule replaces it.
+
+---
+
 ## 4.4.0 — 2026-11-04
 
 ### New template: `test-build-release-godot.yml` (Godot 4.x)

@@ -1,5 +1,5 @@
 name: CodeQL
-# version: 2.0.0 — see workflow-templates/CHANGELOG.md
+# version: 2.0.1 — see workflow-templates/CHANGELOG.md
 # Unified CodeQL — set the language via the LANGUAGES env var below.
 
 on:
@@ -27,10 +27,10 @@ jobs:
     permissions:
       security-events: write
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
 
-      - uses: github/codeql-action/init@v3
+      - uses: github/codeql-action/init@9418214df1f2c4b8128c770156c409013b07d6b9  # v3.39.3
         with:
           languages: ${{ env.LANGUAGES }}
 
-      - uses: github/codeql-action/analyze@v3
+      - uses: github/codeql-action/analyze@9418214df1f2c4b8128c770156c409013b07d6b9  # v3.39.3
