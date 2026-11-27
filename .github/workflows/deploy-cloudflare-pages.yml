@@ -106,7 +106,10 @@ jobs:
 
           ZONE_ID=$(api GET "/zones?name=$ZONE" | jq -r '.result[0].id')
           [ -n "$ZONE_ID" ] && [ "$ZONE_ID" != null ] || { echo "::error::zone $ZONE not found"; exit 1; }
-          TARGET="$PROJECT.pages.dev"
+          # Cloudflare picks the pages.dev name; it differs from the project
+          # name when that one is taken, so read it instead of guessing.
+          TARGET=$(api GET "$ACC/$PROJECT" | jq -r .result.subdomain)
+          [ -n "$TARGET" ] && [ "$TARGET" != null ] || { echo "::error::no pages.dev subdomain for $PROJECT"; exit 1; }
           REC=$(api GET "/zones/$ZONE_ID/dns_records?name=$DOMAIN" | jq -c '.result[0] // empty')
           if [ -z "$REC" ]; then
             echo "creating CNAME $DOMAIN -> $TARGET"
